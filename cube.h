@@ -19,10 +19,12 @@ private:
   public:
     string data;
     int location;
-    Pip(int i){location = i;};
+    int face;
+    Pip(int i, int j){location = i;face = j;};
     ~Pip();
   };
   vector<Pip*> pips;             // data storage
+  int bands[6][12];
 };
 
 #endif // CUBE_H

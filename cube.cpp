@@ -10,17 +10,30 @@
 using namespace std;
 
 Cube::Cube() {
+  int nums[72] = {1,2,3,9,10,11,25,26,27,33,34,35,6,7,8,14,15,16,30,31,32,40,41,
+                  42,1,4,6,41,44,46,25,28,30,17,20,22,3,5,8, 43,45,48, 27,29,32,
+                  19,21,24,22,23,24,9,12,14,43,42,41,40,37,35,17,18,19,11,13,16,
+                  48,47,46,38,36,33};
+  int j = -1;
+  int l = 0;
   for (size_t i = 0; i < 48; i++) {
-    Pip *tmp = new Pip(i);
+    if ((i % 8) == 0) {j++;}
+    Pip *tmp = new Pip(i, j);
     pips.push_back(tmp);
   }
+  for (size_t i = 0; i < 6; i++) {
+    for (size_t k = 0; k < 12; k++) {
+        bands[i][k] = nums[l];
+        l++;
+    }
+  }
+  /* Front, Right, Top, Back, Left, Bottom */
 }
 
 void Cube::initializeCube(fstream& stream) {
   char ch;
   int index = 0;
   while (stream.get(ch)) {
-    cout << ch << " " << index << endl;
     string str;
     str.push_back(ch);
     pips[index]->data += str;

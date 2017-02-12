@@ -12,6 +12,7 @@ class Cube {
 public:
   Cube();
   void initializeCube(fstream&);       // reads in data
+  void deconstructCube(fstream&);
   int getSize(){return pips.size();}
   void print();                          // prints out data
 private:

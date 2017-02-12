@@ -4,8 +4,10 @@
 #include <vector>
 #include <fstream>
 
+/************************/
 /*   Debug only:   */
 #include <iostream>
+/************************/
 
 using namespace std;
 
@@ -41,6 +43,10 @@ void Cube::initializeCube(fstream& stream) {
     index++;
     index = index % 48;
   }
+}
+
+void Cube::deconstructCube(fstream& stream) {
+  
 }
 
 void Cube::print() {

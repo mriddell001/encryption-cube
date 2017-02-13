@@ -121,8 +121,8 @@ var T_FSHD_SRC =
 '  gl_FragColor = vec4(color.rgb * v_NdotL, color.a);\n' +
 '}\n';
 
-var gX = 0, gY = 2, gZ = 5;
-var ang = 0, aX = 0, aY = 2, aZ = 4;
+var gX = 0, gY = 3, gZ = 5;
+var ang = 0, aX = 0, aY = 3, aZ = 4;
 var g_last = Date.now();
 
 var a, b, c, d, e, f;
@@ -336,14 +336,20 @@ function setStage(gl, program) {
   }
   for (var i = 0; i < cubes.length; i++) {
     switch (i) {
-      case 0:r=0;s=0;t=0;u=0;v=-2;w=0;x=20;y=0.1;z=20;break;
-      case 1:r=0;s=0;t=0;u=0;u=0;v=4.5;w=-7;x=10;y=5;z=0.1;break;
-      case 2:r=0;s=0;t=0;u=0;u=0;v=-0.8;w=-4.1;x=10;y=0.5;z=3;break;
+      case 0:r=0;s=0;t=0;u=0;v=-2;w=0;x=y=z=0;break;
+      //case 1:r=0;s=0;t=0;u=0;u=0;v=4.5;w=-7;x=10;y=5;z=0.1;break;
+      case 1:r=0;s=0;t=0;u=0;u=0;v=4.5;w=-7;x=0;y=0;z=0;break;
+      //case 2:r=0;s=0;t=0;u=0;u=0;v=-0.8;w=-4.1;x=10;y=0.5;z=3;break;
+      case 2:r=0;s=0;t=0;u=0;u=0;v=-0.8;w=-4.1;x=y=z=0;break;
+      //case 3:r=0;s=0;t=0;u=0;u=0;v=-10;w=0;x=y=z=20;break;
       case 3:r=0;s=0;t=0;u=0;u=0;v=-10;w=0;x=y=z=20;break;
       case 4:r=45;s=45;t=45;u=45;u = 0; v = 1.5; w = -4; x = y = z = 1;break;
-      case 5:r=0;s=0;t=0;u=0;u = 9.9; v = 9.25; w = -4; x = y = 0.25;z = 3;break;
-      case 6:r=0;s=0;t=0;u=0;u = -9.9; v = 9.25; w = -4; x = y = 0.25;z = 3;break;
-      case 7:r=0;s=0;t=0;u=0;u = 0; v = 9.25; w = -1; z = y = 0.25;x = 10.1;break;
+      //case 5:r=0;s=0;t=0;u=0;u = 9.9; v = 9.25; w = -4; x = y = 0.25;z = 3;break;
+      //case 6:r=0;s=0;t=0;u=0;u = -9.9; v = 9.25; w = -4; x = y = 0.25;z = 3;break;
+      //case 7:r=0;s=0;t=0;u=0;u = 0; v = 9.25; w = -1; z = y = 0.25;x = 10.1;break;
+      case 5:r=0;s=0;t=0;u=0;u = 9.9; v = 9.25; w = -4; x = y = z = 0;break;
+      case 6:r=0;s=0;t=0;u=0;u = -9.9; v = 9.25; w = -4; x = y = z = 0;break;
+      case 7:r=0;s=0;t=0;u=0;u = 0; v = 9.25; w = -1; z = y = x = 0;break;
       default:
     }
     cubes[i].mMatrix.translate(u, v, w);

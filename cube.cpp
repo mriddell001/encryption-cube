@@ -46,7 +46,41 @@ void Cube::initializeCube(fstream& stream) {
 }
 
 void Cube::deconstructCube(fstream& stream) {
-  
+  //Print faces in order:
+  /* Front, Right, Top, Back, Left, Bottom */
+}
+
+void Cube::transformationStream(fstream& stream) {
+  char face;
+  char direction;
+  string a, b;
+
+  while (stream.get(face)) {
+    stream.get(direction);
+    a.push_back(face);
+    b.push_back(direction);
+  }
+
+}
+
+void Cube::transformationDispatch(string a, string b) {
+  for (size_t i = 0; i < a.count; i++) {
+    switch (a[i]) {
+      case /* value */:
+      case /* value */:
+      case /* value */:
+      case /* value */:
+      case /* value */:
+      case /* value */:
+      default:
+      {
+        ofstream err ("error.txt", ofstream::out);
+        err << "Error occured in transformationDispatch";
+        err.close();
+        exit 1;
+      }
+    }
+  }
 }
 
 void Cube::print() {

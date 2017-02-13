@@ -11,9 +11,11 @@ using namespace std;
 class Cube {
 public:
   Cube();
-  void initializeCube(fstream&);       // reads in data
-  void deconstructCube(fstream&);
+  void initializeCube(fstream&);       // streams in data
+  void deconstructCube(fstream&);      // streams out data
   int getSize(){return pips.size();}
+  void transformationStream(fstream&); // streams in movement data
+  void transformationDispatch(string a, string b);
   void print();                          // prints out data
 private:
   class Pip {                            // Represents on square on the cube

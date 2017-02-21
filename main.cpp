@@ -2,11 +2,11 @@
 Expected form of input:
 0. Program Name
 1. Actions file.
-A. Actions file will contain a reference to the type of action to be taken.
-a. Form will be:
-Action                    -> (INT)
-Action FileName           -> (INT) (STRING)
-Action Filename FileName  -> (INT) (STRING) (STRING)
+  A. Actions file will contain a reference to the type of action to be taken.
+    a. Form will be:
+      Action                    -> (INT)
+      Action FileName           -> (INT) (STRING)
+      Action Filename FileName  -> (INT) (STRING) (STRING)
 **/
 
 //data_structure Read & Load

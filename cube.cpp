@@ -29,8 +29,8 @@ Cube::Cube() {
         l++;
     }
   }
-  /* Front, Right, Top, Back, Left, Bottom */
 }
+/* Front, Right, Top, Back, Left, Bottom */
 
 void Cube::initializeCube(fstream& stream) {
   char ch;
@@ -46,8 +46,67 @@ void Cube::initializeCube(fstream& stream) {
 }
 
 void Cube::deconstructCube(fstream& stream) {
-  //Print faces in order:
-  /* Front, Right, Top, Back, Left, Bottom */
+  //Print faces in order: Front, Right, Top, Back, Left, Bottom
+  /* Front
+    band(0): 1, 2, 3
+    band(2): 2
+    band(3): 2
+    band(1): 1, 2, 3 */
+    stream << bands[0][0] << bands[0][1] << bands[0][2];
+    stream << bands[2][1];
+    stream << bands[3][1];
+    stream << bands[1][0] << bands[1][1] << bands[1][2];
+
+  /* Right
+    band(0): 4, 5, 6
+    band(4): 5
+    band(5): 5
+    band(1): 4, 5, 6 */
+    stream << bands[0][3] << bands[0][4] << bands[0][5];
+    stream << bands[4][4];
+    stream << bands[5][4];
+    stream << bands[1][3] << bands[1][4] << bands[1][5];
+
+  /* Top
+    band(5): 1, 2, 3
+    band(2): 11
+    band(3): 11
+    band(4): 1, 2, 3 */
+    stream << bands[5][0] << bands[5][1] << bands[5][2];
+    stream << bands[2][10];
+    stream << bands[3][10];
+    stream << bands[4][0] << bands[4][1] << bands[4][2];
+
+  /* Back
+    band(0): 7, 8, 9
+    band(2): 8
+    band(3): 8
+    band(1): 7, 8, 9 */
+    stream << bands[0][6] << bands[0][7] << bands[0][8];
+    stream << bands[2][7];
+    stream << bands[3][7];
+    stream << bands[1][6] << bands[1][7] << bands[1][8];
+
+  /* Left
+    band(0): 10, 11, 12
+    band(5): 11
+    band(4): 11
+    band(1): 10, 11, 12 */
+    stream << bands[0][9] << bands[0][10] << bands[0][11];
+    stream << bands[5][10];
+    stream << bands[4][10];
+    stream << bands[1][9] << bands[1][10] << bands[1][11];
+
+  /* Bottom
+    band(4): 9, 8, 7
+    band(2): 4
+    band(3): 4
+    band(5): 9, 8, 7 */
+    stream << bands[4][8] << bands[4][7] << bands[4][6];
+    stream << bands[2][3];
+    stream << bands[3][3];
+    stream << bands[5][8] << bands[5][7] << bands[5][6];
+
 }
 
 void Cube::transformationStream(fstream& stream) {
@@ -64,20 +123,20 @@ void Cube::transformationStream(fstream& stream) {
 }
 
 void Cube::transformationDispatch(string a, string b) {
-  for (size_t i = 0; i < a.count; i++) {
+  for (size_t i = 0; i < a.length(); i++) {
     switch (a[i]) {
-      case /* value */:
-      case /* value */:
-      case /* value */:
-      case /* value */:
-      case /* value */:
-      case /* value */:
+      case /* value */0:break;
+      case /* value */1:break;
+      case /* value */2:break;
+      case /* value */3:break;
+      case /* value */4:break;
+      case /* value */5:break;
       default:
       {
         ofstream err ("error.txt", ofstream::out);
         err << "Error occured in transformationDispatch";
         err.close();
-        exit 1;
+        exit;
       }
     }
   }

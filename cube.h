@@ -11,14 +11,16 @@ using namespace std;
 class Cube {
 public:
   Cube();
-  void initializeCube(fstream&);       // streams in data
-  void deconstructCube(fstream&);      // streams out data
+  void initializeCube(fstream&);                      // streams in data
+  void deconstructCube(fstream&);                     // streams out data
   int getSize(){return pips.size();}
-  void transformationStream(fstream&); // streams in movement data
+  void transformationStream(fstream&);                // streams in movement data
   void transformationDispatch(string a, string b);
-  void print();                          // prints out data
+  void print(fstream& stream);                        // prints out data
+  bool clockwise(int a, int b);
+  bool counterclockwise(int a, int b);
 private:
-  class Pip {                            // Represents on square on the cube
+  class Pip {                                         // Represents on square on the cube
   public:
     string data;
     int location;
@@ -26,7 +28,7 @@ private:
     Pip(int i, int j){location = i;face = j;};
     ~Pip();
   };
-  vector<Pip*> pips;             // data storage
+  vector<Pip*> pips;                                   // data storage
   int bands[6][12];
 };
 

@@ -60,7 +60,9 @@ int main(int argc, char const *argv[]) {
         }
         case 3:
         {
-          cube.print();
+          fstream ostream ("output.txt", fstream::out);
+          cube.print(ostream);
+          ostream.close();
           break;
         }
         default:

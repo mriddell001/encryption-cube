@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iterator>
 
 /************************/
 /*   Debug only:   */
@@ -46,67 +47,7 @@ void Cube::initializeCube(fstream& stream) {
 }
 
 void Cube::deconstructCube(fstream& stream) {
-  //Print faces in order: Front, Right, Top, Back, Left, Bottom
-  /* Front
-    band(0): 1, 2, 3
-    band(2): 2
-    band(3): 2
-    band(1): 1, 2, 3 */
-    stream << bands[0][0] << bands[0][1] << bands[0][2];
-    stream << bands[2][1];
-    stream << bands[3][1];
-    stream << bands[1][0] << bands[1][1] << bands[1][2];
-
-  /* Right
-    band(0): 4, 5, 6
-    band(4): 5
-    band(5): 5
-    band(1): 4, 5, 6 */
-    stream << bands[0][3] << bands[0][4] << bands[0][5];
-    stream << bands[4][4];
-    stream << bands[5][4];
-    stream << bands[1][3] << bands[1][4] << bands[1][5];
-
-  /* Top
-    band(5): 1, 2, 3
-    band(2): 11
-    band(3): 11
-    band(4): 1, 2, 3 */
-    stream << bands[5][0] << bands[5][1] << bands[5][2];
-    stream << bands[2][10];
-    stream << bands[3][10];
-    stream << bands[4][0] << bands[4][1] << bands[4][2];
-
-  /* Back
-    band(0): 7, 8, 9
-    band(2): 8
-    band(3): 8
-    band(1): 7, 8, 9 */
-    stream << bands[0][6] << bands[0][7] << bands[0][8];
-    stream << bands[2][7];
-    stream << bands[3][7];
-    stream << bands[1][6] << bands[1][7] << bands[1][8];
-
-  /* Left
-    band(0): 10, 11, 12
-    band(5): 11
-    band(4): 11
-    band(1): 10, 11, 12 */
-    stream << bands[0][9] << bands[0][10] << bands[0][11];
-    stream << bands[5][10];
-    stream << bands[4][10];
-    stream << bands[1][9] << bands[1][10] << bands[1][11];
-
-  /* Bottom
-    band(4): 9, 8, 7
-    band(2): 4
-    band(3): 4
-    band(5): 9, 8, 7 */
-    stream << bands[4][8] << bands[4][7] << bands[4][6];
-    stream << bands[2][3];
-    stream << bands[3][3];
-    stream << bands[5][8] << bands[5][7] << bands[5][6];
-
+  print(stream);
 }
 
 void Cube::transformationStream(fstream& stream) {
@@ -124,27 +65,157 @@ void Cube::transformationStream(fstream& stream) {
 
 void Cube::transformationDispatch(string a, string b) {
   for (size_t i = 0; i < a.length(); i++) {
-    switch (a[i]) {
-      case /* value */0:break;
-      case /* value */1:break;
-      case /* value */2:break;
-      case /* value */3:break;
-      case /* value */4:break;
-      case /* value */5:break;
+    int x, y;
+    x = a[i];
+    y = b[i];
+    switch (x) {
+      case 0:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
+      case 1:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
+      case 2:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
+      case 3:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
+      case 4:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
+      case 5:
+      {
+        if (y == 0) {clockwise(x, y);}
+        else {counterclockwise(x, y);}
+        break;
+      }
       default:
       {
         ofstream err ("error.txt", ofstream::out);
         err << "Error occured in transformationDispatch";
         err.close();
-        exit;
+        break;
       }
     }
   }
 }
 
-void Cube::print() {
-  for (size_t i = 0; i < 48; i++) {
-    cout << pips[i]->data;
-  }
-  cout << endl;
+bool Cube::clockwise(int a, int b) {
+  /*
+    Top - Back, Right, Front, Left
+      0(0-11) = 0(3-11,0-2)
+      2(9-11) = 4(2-0)
+      3(9-11) = 5(2-0)
+      4(0-2) = 3(9-11)
+      5(0-2) = 2(9-11)
+    Bottom - Front, Right, Back, Left
+      1(0-11) = 1(3-11,0-2)
+      2(3-5) = 4(8-6)
+      3(3-5) = 5(8-6)
+      4(6-8) = 3(3-5)
+      5(6-8) = 2(3-5)
+    Left - Top, Front, Bottom, Back
+      2(0-11) = 2(3-11,0-2)
+      0(9-11) = 4(9-11)
+      1(9-11) = 5(9-11)
+      4(9-11) = 1(11-9)
+      5(9-11) = 0(11-9)
+    Right - Top, Back, Bottom, Front
+      3(0-11) = 3(3-11,0-2)
+      0(9-11) = 4(9-11)
+      1(9-11) = 5(9-11)
+      4(9-11) = 1(11-9)
+      5(9-11) = 0(11-9)
+    Back - Top, Left, Bottom, Right
+      4(0-11) = 4(3-11,0-2)
+      0(6-8) = 2(8-6)
+      1(6-8) = 3(8-6)
+      2(6-8) = 0(6-8)
+      3(6-8) = 1(6-8)
+    Front - Top, Right, Bottom, Left
+      5(0-11) = 5(3-11,0-2)
+      0(0-2) = 2(2-0)
+      1(0-2) = 3(2-0)
+      2(0-2) = 1(0-2)
+      3(0-2) = 0(0-2)
+  */
+  return true;
+}
+
+bool Cube::counterclockwise(int a, int b) {
+  /* INCORRECT - NEEDS CORRECTION
+    Top - Back, Right, Front, Left
+      band(0)(0-11)
+    Bottom - Front, Right, Back, Left
+      band(1)(0-11)
+    Left - Top, Front, Bottom, Back
+      band(2)(0-11)
+    Right - Top, Back, Bottom, Front
+      band(3)(0-11)
+    Back - Top, Left, Bottom, Right
+      band(4)(0-11)
+    Front - Top, Right, Bottom, Left
+      band(5)(0-11)
+  */
+  return true;
+}
+
+void Cube::print(fstream& stream) {
+  vector<int> v;
+  //Print faces in order: Front, Right, Top, Back, Left, Bottom
+  /* Front - band(0): 1, 2, 3 | band(2): 2 | band(3): 2 | band(1): 1, 2, 3 */
+    v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
+    v.push_back(bands[2][1]);
+    v.push_back(bands[3][1]);
+    v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+
+  /* Right - band(0): 4, 5, 6 | band(4): 5 | band(5): 5 | band(1): 4, 5, 6 */
+    v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
+    v.push_back(bands[4][4]);
+    v.push_back(bands[5][4]);
+    v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
+
+  /* Top - band(5): 1, 2, 3 | band(2): 11 | band(3): 11 | band(4): 1, 2, 3 */
+    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+    v.push_back(bands[2][10]);
+    v.push_back(bands[3][10]);
+    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+
+  /* Back - band(0): 7, 8, 9 | band(2): 8 | band(3): 8 | band(1): 7, 8, 9 */
+    v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
+    v.push_back(bands[2][7]);
+    v.push_back(bands[3][7]);
+    v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
+
+  /* Left - band(0): 10, 11, 12 | band(5): 11 | band(4): 11 | band(1): 10, 11, 12 */
+    v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
+    v.push_back(bands[5][10]);
+    v.push_back(bands[4][10]);
+    v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
+
+  /* Bottom - band(4): 9, 8, 7 | band(2): 4 | band(3): 4 | band(5): 9, 8, 7 */
+    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
+    v.push_back(bands[2][3]);
+    v.push_back(bands[3][3]);
+    v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+
+    for (auto it = begin(v); it != end(v); ++it) {
+      stream << pips[*it-1]->data;
+    }
 }

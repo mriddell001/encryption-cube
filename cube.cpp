@@ -69,42 +69,12 @@ void Cube::transformationDispatch(string a, string b) {
     x = a[i];
     y = b[i];
     switch (x) {
-      case 0:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
-      case 1:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
-      case 2:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
-      case 3:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
-      case 4:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
-      case 5:
-      {
-        if (y == 0) {clockwise(x, y);}
-        else {counterclockwise(x, y);}
-        break;
-      }
+      case 0:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 1:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 2:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 3:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 4:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 5:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
       default:
       {
         ofstream err ("error.txt", ofstream::out);

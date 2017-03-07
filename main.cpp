@@ -48,6 +48,9 @@ int main(int argc, char const *argv[]) {
         case 1:
         {
           string fileName = action.substr(2, action.length()-2);
+          fstream istream (fileName, fstream::in);
+          cube.transformationStream(istream);
+          istream.close();
           break;
         }
         case 2:

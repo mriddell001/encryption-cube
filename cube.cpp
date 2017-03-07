@@ -31,7 +31,6 @@ Cube::Cube() {
     }
   }
 }
-/* Front, Right, Top, Back, Left, Bottom */
 
 void Cube::initializeCube(fstream& stream) {
   char ch;
@@ -40,9 +39,13 @@ void Cube::initializeCube(fstream& stream) {
     string str;
     str.push_back(ch);
     pips[index]->data += str;
-
     index++;
     index = index % 48;
+  }
+  if (index != 0) {
+    for (size_t i = 0; i < 48; i++) {
+      pips[i]->data += " ";
+    }
   }
 }
 
@@ -60,21 +63,21 @@ void Cube::transformationStream(fstream& stream) {
     a.push_back(face);
     b.push_back(direction);
   }
-
+  transformationDispatch(a, b);
 }
 
 void Cube::transformationDispatch(string a, string b) {
   for (size_t i = 0; i < a.length(); i++) {
     int x, y;
-    x = a[i];
-    y = b[i];
+    x = (int)(a[i]);
+    y = (int)(b[i]);
     switch (x) {
-      case 0:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
-      case 1:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
-      case 2:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
-      case 3:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
-      case 4:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
-      case 5:{ if(y == 0){clockwise(x,y);} else{counterclockwise(x,y);} break;}
+      case 0:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
+      case 1:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
+      case 2:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
+      case 3:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
+      case 4:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
+      case 5:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       default:
       {
         ofstream err ("error.txt", ofstream::out);
@@ -86,63 +89,279 @@ void Cube::transformationDispatch(string a, string b) {
   }
 }
 
-bool Cube::clockwise(int a, int b) {
-  /*
-    Top - Back, Right, Front, Left
-      0(0-11) = 0(3-11,0-2)
-      2(9-11) = 4(2-0)
-      3(9-11) = 5(2-0)
-      4(0-2) = 3(9-11)
-      5(0-2) = 2(9-11)
-    Bottom - Front, Right, Back, Left
-      1(0-11) = 1(3-11,0-2)
-      2(3-5) = 4(8-6)
+bool Cube::clockwise(int a) {
+  int x[3];
+  int y[3];
+  switch (a) {
+    case 0://Top - Back, Right, Front, Left
+    {
+      threeBack(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+      break;
+    }
+    case 1://Bottom - Front, Right, Back, Left
+    {//1(0-11) = 1(3-11,0-2)
+      threeFront(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+    /*2(3-5) = 4(8-6)
+      2(2) = 1(0)
+      2(6) = 1(8)
       3(3-5) = 5(8-6)
-      4(6-8) = 3(3-5)
+      3(2) = 1(2)
+      3(6) = 1(6)
+      4(6-8) = 3(5-3)
+      4(5) = 1(5)
+      4(9) = 1(9)
       5(6-8) = 2(3-5)
-    Left - Top, Front, Bottom, Back
-      2(0-11) = 2(3-11,0-2)
-      0(9-11) = 4(9-11)
+      5(5) = 1(3)
+      5(9) = 1(11)*/
+      break;
+    }
+    case 2://Left - Top, Front, Bottom, Back
+    {//2(0-11) = 2(3-11,0-2)
+      threeFront(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+    /*0(9-11) = 4(9-11)
+      0(0) = 4(0)
+      0(8) = 4(8)
       1(9-11) = 5(9-11)
+      1(0) = 2(0)
+      1(8) = 2(6)
       4(9-11) = 1(11-9)
+      4(0) = 2(9)
+      4(8) = 2(5)
       5(9-11) = 0(11-9)
-    Right - Top, Back, Bottom, Front
-      3(0-11) = 3(3-11,0-2)
-      0(9-11) = 4(9-11)
-      1(9-11) = 5(9-11)
-      4(9-11) = 1(11-9)
-      5(9-11) = 0(11-9)
-    Back - Top, Left, Bottom, Right
-      4(0-11) = 4(3-11,0-2)
-      0(6-8) = 2(8-6)
-      1(6-8) = 3(8-6)
-      2(6-8) = 0(6-8)
-      3(6-8) = 1(6-8)
-    Front - Top, Right, Bottom, Left
-      5(0-11) = 5(3-11,0-2)
-      0(0-2) = 2(2-0)
-      1(0-2) = 3(2-0)
-      2(0-2) = 1(0-2)
-      3(0-2) = 0(0-2)
-  */
+      5(0) = 2(11)
+      5(8) = 2(3)*/
+    break;
+    }
+    case 3://Right - Top, Back, Bottom, Front
+    {//3(0-11) = 3(3-11,0-2)
+      threeBack(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+    /*0(3-5) = 5(5-3)
+      0(2) = 3(0)
+      0(6) = 3(8)
+      1(3-5) = 4(5-3)
+      1(0) = 3(2)
+      1(6) = 3(6)
+      4(3-5) = 0(3-5)
+      4(2) = 3(9)
+      4(6) = 3(5)
+      5(3-5) = 1(3-5)
+      5(2) = 3(11)
+      5(6) = 3(3)*/
+      break;
+    }
+    case 4://Back - Top, Left, Bottom, Right
+    {//4(0-11) = 4(3-11,0-2)
+      threeBack(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+    /*0(6-8) = 3(6-8)
+      0(5) = 4(3)
+      0(9) = 4(11)
+      1(6-8) = 2(6-8)
+      1(5) = 4(5)
+      1(9) = 4(9)
+      2(6-8) = 0(8-6)
+      2(5) = 4(8)
+      2(9) = 4(0)
+      3(6-8) = 1(8-6)
+      3(5) = 4(6)
+      3(9) = 4(2)*/
+      break;
+    }
+    case 5://Front - Top, Right, Bottom, Left
+    {//5(0-11) = 5(3-11,0-2)
+      threeBack(a);
+
+      for (size_t i = 9; i < 12; i++) {
+        x[i-9] = bands[2][i];
+        bands[2][i] = bands[5][i-9];
+      }
+      bands[2][0] = bands[a][0];
+      bands[2][8] = bands[a][8];
+
+      for (size_t i = 9; i < 12; i++) {
+        y[i-9] = bands[3][i];
+        bands[3][i] = bands[4][i-9];
+      }
+      bands[3][0] = bands[a][2];
+      bands[3][8] = bands[a][6];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[4][i] = x[2-i];
+      }
+      bands[4][3] = bands[a][5];
+      bands[4][11] = bands[a][9];
+
+      for (size_t i = 0; i < 3; i++) {
+        bands[5][i] = y[2-i];
+      }
+      bands[5][3] = bands[a][3];
+      bands[5][11] = bands[a][11];
+      break;
+    }
+  }
   return true;
 }
 
-bool Cube::counterclockwise(int a, int b) {
-  /* INCORRECT - NEEDS CORRECTION
-    Top - Back, Right, Front, Left
-      band(0)(0-11)
-    Bottom - Front, Right, Back, Left
-      band(1)(0-11)
-    Left - Top, Front, Bottom, Back
-      band(2)(0-11)
-    Right - Top, Back, Bottom, Front
-      band(3)(0-11)
-    Back - Top, Left, Bottom, Right
-      band(4)(0-11)
-    Front - Top, Right, Bottom, Left
-      band(5)(0-11)
-  */
+bool Cube::counterclockwise(int a) {
+  for (size_t i = 0; i < 3; i++) {
+    clockwise(a);
+  }
+  return true;
+}
+
+bool Cube::threeBack(int a) {
+  int swap[3];
+  for (size_t i = 0; i < 3; i++) {
+    swap[i] = bands[a][i];
+  }
+  for (size_t i = 3; i < 10; i++) {
+    bands[a][i] = bands[a][i+1];
+  }
+  for (size_t i = 10; i < 13; i++) {
+    bands[a][i] = swap[i-10];
+  }
+  return true;
+}
+bool Cube::threeFront(int a) {
+  int swap[3];
+  for (size_t i = 9; i < 12; i++) {
+    swap[i] = bands[a][i];
+  }
+  for (size_t i = 11; i > 2; i++) {
+    bands[a][i] = bands[a][i-3];
+  }
+  for (size_t i = 0; i < 3; i++) {
+    bands[a][i] = swap[i];
+  }
   return true;
 }
 

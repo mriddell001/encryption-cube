@@ -4,14 +4,17 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
-
-/************************/
-/*   Debug only:   */
 #include <iostream>
-/************************/
 
 using namespace std;
 
+
+/**
+* Cube - Initial creation of cube.
+*
+* Notes: May be impacted by changing load order. Check when project reaches
+*        applicable phase in development.
+*/
 Cube::Cube() {
   int nums[72] = {1,2,3,9,10,11,25,26,27,33,34,35,6,7,8,14,15,16,30,31,32,40,41,
                   42,1,4,6,41,44,46,25,28,30,17,20,22,3,5,8, 43,45,48, 27,29,32,
@@ -19,19 +22,28 @@ Cube::Cube() {
                   48,47,46,38,36,33};
   int j = -1;
   int l = 0;
-  for (size_t i = 0; i < 48; i++) {
+  for (int i = 0; i < 48; i++) {
     if ((i % 8) == 0) {j++;}
     Pip *tmp = new Pip(i, j);
     pips.push_back(tmp);
   }
-  for (size_t i = 0; i < 6; i++) {
-    for (size_t k = 0; k < 12; k++) {
+  for (int i = 0; i < 6; i++) {
+    for (int k = 0; k < 12; k++) {
         bands[i][k] = nums[l];
         l++;
     }
   }
 }
 
+
+/**
+* initializeCube - function to take input stream and load cube with strings of
+*                  data in the order: Front, Right, Top, Back, Left, Bottom
+* @param {fstream} stream - input stream to load cube with data.
+*
+* Notes: Will be impacted by changing load order. Check when project reaches
+*        applicable phase in development.
+*/
 void Cube::initializeCube(fstream& stream) {
   char ch;
   int index = 0;
@@ -43,31 +55,56 @@ void Cube::initializeCube(fstream& stream) {
     index = index % 48;
   }
   if (index != 0) {
-    for (size_t i = 0; i < 48; i++) {
+    for (int i = 0; i < 48; i++) {
       pips[i]->data += " ";
     }
   }
 }
 
+
+/**
+* deconstructCube - function to print cube to output file.
+* @param {fstream} stream - output stream to offload cube data.
+*
+* Notes: Deconstruction cube should also call the destructor for the cube. This
+*        still needs to be implimented.
+*/
 void Cube::deconstructCube(fstream& stream) {
   print(stream);
 }
 
+
+/**
+* transformationStream - accept input file of cube manipulations.
+* @param {fstream} stream - input stream of cube transformations.
+*/
 void Cube::transformationStream(fstream& stream) {
   char face;
   char direction;
-  string a, b;
+  string a, b, nl;
+
+  a = "";
+  b = "";
 
   while (stream.get(face)) {
     stream.get(direction);
-    a.push_back(face);
-    b.push_back(direction);
+    a += face;
+    b += direction;
+    if (stream.peek() != EOF) {
+      stream.get(nl);
+    }
   }
   transformationDispatch(a, b);
 }
 
+
+/**
+* transformationDispatch - function to take string of orders ()
+* @param {String} a - string of faces to be opperated on
+* @param {String} b - string indication clockwise or counterclockwise.
+*/
 void Cube::transformationDispatch(string a, string b) {
-  for (size_t i = 0; i < a.length(); i++) {
+  for (int i = 0; i < a.length(); i++) {
     int x, y;
     x = (int)(a[i]);
     y = (int)(b[i]);
@@ -79,7 +116,7 @@ void Cube::transformationDispatch(string a, string b) {
       case 4:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 5:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       default:
-      {
+      {//If input if formatted correctly, this should never trigger.
         ofstream err ("error.txt", ofstream::out);
         err << "Error occured in transformationDispatch";
         err.close();
@@ -89,238 +126,180 @@ void Cube::transformationDispatch(string a, string b) {
   }
 }
 
-bool Cube::clockwise(int a) {
+
+/**
+* clockwise - function that takes an instruction for which face to opperate on
+*             and it preforms the shifting of the indicators in the clockwise
+*             direction
+* @param {Int} a - numerical indicator of which face to manipulate.
+*
+* Notes: cases including function threeFront are incomplete, cases containing
+*        threeBack are complete.
+*/
+void Cube::clockwise(int a) {
   int x[3];
   int y[3];
   switch (a) {
     case 0://Top - Back, Right, Front, Left
-    {
+    {//0(0-11) = 0(3-11,0-2)
       threeBack(a);
-
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {//5(0-2) => 2(9-11) && 4(0-2) => 3(9-11)
         x[i-9] = bands[2][i];
+        y[i-9] = bands[3][i];
         bands[2][i] = bands[5][i-9];
+        bands[3][i] = bands[4][i-9];
+      }
+      for (int i = 0; i < 3; i++) {//2(11-9) => 4(0-2) && 3(11-9) => 5(0-2)
+        bands[4][i] = x[2-i];
+        bands[5][i] = y[2-i];
       }
       bands[2][0] = bands[a][0];
       bands[2][8] = bands[a][8];
-
-      for (size_t i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
-      }
       bands[3][0] = bands[a][2];
       bands[3][8] = bands[a][6];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
       bands[4][3] = bands[a][5];
       bands[4][11] = bands[a][9];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
       bands[5][3] = bands[a][3];
       bands[5][11] = bands[a][11];
       break;
     }
     case 1://Bottom - Front, Right, Back, Left
-    {//1(0-11) = 1(3-11,0-2)
+    {//1(0-11) = 1(9-11,0-8)
+      //Take the last three elements and move them to the front of the array.
       threeFront(a);
 
-      for (size_t i = 9; i < 12; i++) {
+
+      for (int i = 9; i < 12; i++) {
         x[i-9] = bands[2][i];
         bands[2][i] = bands[5][i-9];
       }
       bands[2][0] = bands[a][0];
       bands[2][8] = bands[a][8];
 
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {
         y[i-9] = bands[3][i];
         bands[3][i] = bands[4][i-9];
       }
       bands[3][0] = bands[a][2];
       bands[3][8] = bands[a][6];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[4][i] = x[2-i];
       }
       bands[4][3] = bands[a][5];
       bands[4][11] = bands[a][9];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[5][i] = y[2-i];
       }
       bands[5][3] = bands[a][3];
       bands[5][11] = bands[a][11];
-    /*2(3-5) = 4(8-6)
-      2(2) = 1(0)
-      2(6) = 1(8)
-      3(3-5) = 5(8-6)
-      3(2) = 1(2)
-      3(6) = 1(6)
-      4(6-8) = 3(5-3)
-      4(5) = 1(5)
-      4(9) = 1(9)
-      5(6-8) = 2(3-5)
-      5(5) = 1(3)
-      5(9) = 1(11)*/
       break;
     }
     case 2://Left - Top, Front, Bottom, Back
-    {//2(0-11) = 2(3-11,0-2)
+    {//2(0-11) = 2(9-11,0-8)
+      //Take the last three elements and move them to the front of the array.
       threeFront(a);
-
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {
         x[i-9] = bands[2][i];
         bands[2][i] = bands[5][i-9];
       }
       bands[2][0] = bands[a][0];
       bands[2][8] = bands[a][8];
 
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {
         y[i-9] = bands[3][i];
         bands[3][i] = bands[4][i-9];
       }
       bands[3][0] = bands[a][2];
       bands[3][8] = bands[a][6];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[4][i] = x[2-i];
       }
       bands[4][3] = bands[a][5];
       bands[4][11] = bands[a][9];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[5][i] = y[2-i];
       }
       bands[5][3] = bands[a][3];
       bands[5][11] = bands[a][11];
-    /*0(9-11) = 4(9-11)
-      0(0) = 4(0)
-      0(8) = 4(8)
-      1(9-11) = 5(9-11)
-      1(0) = 2(0)
-      1(8) = 2(6)
-      4(9-11) = 1(11-9)
-      4(0) = 2(9)
-      4(8) = 2(5)
-      5(9-11) = 0(11-9)
-      5(0) = 2(11)
-      5(8) = 2(3)*/
-    break;
+
+      break;
     }
     case 3://Right - Top, Back, Bottom, Front
     {//3(0-11) = 3(3-11,0-2)
       threeBack(a);
-
-      for (size_t i = 9; i < 12; i++) {
-        x[i-9] = bands[2][i];
-        bands[2][i] = bands[5][i-9];
+      for (int i = 3; i < 6; i++) {//0(3-5) => 4(3-5) && 1(3-5) => 5(3-5)
+        x[i-3] = bands[4][i];
+        y[i-3] = bands[5][i];
+        bands[4][i] = bands[0][i];
+        bands[5][i] = bands[1][i];
       }
-      bands[2][0] = bands[a][0];
-      bands[2][8] = bands[a][8];
-
-      for (size_t i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
+      for (int i = 3; i < 6; i++) {//5(5-3) => 0(3-5) && 4(5-3) => 1(3-5)
+        bands[1][i] = x[8-i];
+        bands[0][i] = y[8-i];
       }
-      bands[3][0] = bands[a][2];
-      bands[3][8] = bands[a][6];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
-      bands[4][3] = bands[a][5];
-      bands[4][11] = bands[a][9];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
-      bands[5][3] = bands[a][3];
-      bands[5][11] = bands[a][11];
-    /*0(3-5) = 5(5-3)
-      0(2) = 3(0)
-      0(6) = 3(8)
-      1(3-5) = 4(5-3)
-      1(0) = 3(2)
-      1(6) = 3(6)
-      4(3-5) = 0(3-5)
-      4(2) = 3(9)
-      4(6) = 3(5)
-      5(3-5) = 1(3-5)
-      5(2) = 3(11)
-      5(6) = 3(3)*/
+      bands[0][2] = bands[a][0];
+      bands[0][6] = bands[a][8];
+      bands[1][2] = bands[a][2];
+      bands[1][6] = bands[a][6];
+      bands[4][2] = bands[a][9];
+      bands[4][6] = bands[a][5];
+      bands[5][2] = bands[a][11];
+      bands[5][6] = bands[a][3];
       break;
     }
     case 4://Back - Top, Left, Bottom, Right
     {//4(0-11) = 4(3-11,0-2)
       threeBack(a);
-
-      for (size_t i = 9; i < 12; i++) {
-        x[i-9] = bands[2][i];
-        bands[2][i] = bands[5][i-9];
+      for (int i = 6; i < 9; i++) {//0(8-6) => 2(6-8) && 1(8-6) => 3(6-8)
+        x[i-6] = bands[2][i];
+        y[i-6] = bands[3][i];
+        bands[2][i] = bands[0][14-i];
+        bands[3][i] = bands[1][14-i];
       }
-      bands[2][0] = bands[a][0];
-      bands[2][8] = bands[a][8];
-
-      for (size_t i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
+      for (int i = 6; i < 9; i++) {//2(6-8) => 1(6-8) && 3(6-8) => 0(6-8)
+        bands[1][i] = x[i-6];
+        bands[0][i] = y[i-6];
       }
-      bands[3][0] = bands[a][2];
-      bands[3][8] = bands[a][6];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
-      bands[4][3] = bands[a][5];
-      bands[4][11] = bands[a][9];
-
-      for (size_t i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
-      bands[5][3] = bands[a][3];
-      bands[5][11] = bands[a][11];
-    /*0(6-8) = 3(6-8)
-      0(5) = 4(3)
-      0(9) = 4(11)
-      1(6-8) = 2(6-8)
-      1(5) = 4(5)
-      1(9) = 4(9)
-      2(6-8) = 0(8-6)
-      2(5) = 4(8)
-      2(9) = 4(0)
-      3(6-8) = 1(8-6)
-      3(5) = 4(6)
-      3(9) = 4(2)*/
+      bands[0][5] = bands[a][3];
+      bands[0][9] = bands[a][11];
+      bands[1][5] = bands[a][5];
+      bands[1][9] = bands[a][9];
+      bands[2][5] = bands[a][8];
+      bands[2][9] = bands[a][0];
+      bands[3][5] = bands[a][6];
+      bands[3][9] = bands[a][2];
       break;
     }
     case 5://Front - Top, Right, Bottom, Left
-    {//5(0-11) = 5(3-11,0-2)
-      threeBack(a);
+    {//5(0-11) = 5(9-11,0-8)
+      //Take the last three elements and move them to the front of the array.
+      threeFront(a);
 
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {
         x[i-9] = bands[2][i];
         bands[2][i] = bands[5][i-9];
       }
       bands[2][0] = bands[a][0];
       bands[2][8] = bands[a][8];
 
-      for (size_t i = 9; i < 12; i++) {
+      for (int i = 9; i < 12; i++) {
         y[i-9] = bands[3][i];
         bands[3][i] = bands[4][i-9];
       }
       bands[3][0] = bands[a][2];
       bands[3][8] = bands[a][6];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[4][i] = x[2-i];
       }
       bands[4][3] = bands[a][5];
       bands[4][11] = bands[a][9];
 
-      for (size_t i = 0; i < 3; i++) {
+      for (int i = 0; i < 3; i++) {
         bands[5][i] = y[2-i];
       }
       bands[5][3] = bands[a][3];
@@ -331,40 +310,69 @@ bool Cube::clockwise(int a) {
   return true;
 }
 
-bool Cube::counterclockwise(int a) {
-  for (size_t i = 0; i < 3; i++) {
-    clockwise(a);
-  }
+
+/**
+* main - accept input file of instructions.
+* @param {Int} argc - number of arguments.
+* @param {Char Array} argv - char arrays containing commandline input.
+* @returns {Int}
+*/
+void Cube::counterclockwise(int a) {
+  clockwise(a);
+  clockwise(a);
+  clockwise(a);
   return true;
 }
 
-bool Cube::threeBack(int a) {
+
+/**
+* main - accept input file of instructions.
+* @param {Int} argc - number of arguments.
+* @param {Char Array} argv - char arrays containing commandline input.
+* @returns {Int}
+*/
+void Cube::threeBack(int a) {
   int swap[3];
-  for (size_t i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     swap[i] = bands[a][i];
   }
-  for (size_t i = 3; i < 10; i++) {
+  for (int i = 3; i < 10; i++) {
     bands[a][i] = bands[a][i+1];
   }
-  for (size_t i = 10; i < 13; i++) {
+  for (int i = 10; i < 13; i++) {
     bands[a][i] = swap[i-10];
   }
   return true;
 }
-bool Cube::threeFront(int a) {
+
+
+/**
+* main - accept input file of instructions.
+* @param {Int} argc - number of arguments.
+* @param {Char Array} argv - char arrays containing commandline input.
+* @returns {Int}
+*/
+void Cube::threeFront(int a) {
   int swap[3];
-  for (size_t i = 9; i < 12; i++) {
+  for (int i = 9; i < 12; i++) {
     swap[i] = bands[a][i];
   }
-  for (size_t i = 11; i > 2; i++) {
+  for (int i = 11; i > 2; i++) {
     bands[a][i] = bands[a][i-3];
   }
-  for (size_t i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     bands[a][i] = swap[i];
   }
   return true;
 }
 
+
+/**
+* main - accept input file of instructions.
+* @param {Int} argc - number of arguments.
+* @param {Char Array} argv - char arrays containing commandline input.
+* @returns {Int}
+*/
 void Cube::print(fstream& stream) {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom

@@ -17,10 +17,10 @@ public:
   void transformationStream(fstream&);                // streams in movement data
   void transformationDispatch(string a, string b);
   void print(fstream& stream);                        // prints out data
-  bool clockwise(int a);
-  bool counterclockwise(int a);
-  bool threeBack(int a);
-  bool threeFront(int a);
+  void clockwise(int a);
+  void counterclockwise(int a);
+  void threeBack(int a);
+  void threeFront(int a);
 private:
   class Pip {                                         // Represents on square on the cube
   public:

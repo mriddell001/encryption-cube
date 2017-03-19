@@ -167,65 +167,48 @@ void Cube::clockwise(int a) {
     {//1(0-11) = 1(9-11,0-8)
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
-
-
-      for (int i = 9; i < 12; i++) {
-        x[i-9] = bands[2][i];
-        bands[2][i] = bands[5][i-9];
+      for (int i = 3; i < 6; i++) {//4(8-6) => 2(3-5) && 5(8-6) => 3(3-5)
+        x[i-3] = bands[2][i];
+        y[i-3] = bands[3][i];
+        bands[2][i] = bands[4][11-i];
+        bands[3][i] = bands[5][11-i];
       }
-      bands[2][0] = bands[a][0];
-      bands[2][8] = bands[a][8];
-
-      for (int i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
+      for (int i = 6; i < 9; i++) {//2(5-3) => 5(6-8) && 3(11-9) => 4(0-2)
+        bands[5][i] = x[8-i];
+        bands[4][i] = y[8-i];
       }
-      bands[3][0] = bands[a][2];
-      bands[3][8] = bands[a][6];
-
-      for (int i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
-      bands[4][3] = bands[a][5];
-      bands[4][11] = bands[a][9];
-
-      for (int i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
-      bands[5][3] = bands[a][3];
-      bands[5][11] = bands[a][11];
+      bands[2][2] = bands[a][0];
+      bands[2][6] = bands[a][8];
+      bands[3][2] = bands[a][2];
+      bands[3][6] = bands[a][6];
+      bands[4][5] = bands[a][5];
+      bands[4][9] = bands[a][9];
+      bands[5][5] = bands[a][3];
+      bands[5][9] = bands[a][11];
       break;
     }
     case 2://Left - Top, Front, Bottom, Back
     {//2(0-11) = 2(9-11,0-8)
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
-      for (int i = 9; i < 12; i++) {
-        x[i-9] = bands[2][i];
-        bands[2][i] = bands[5][i-9];
+      for (int i = 9; i < 12; i++) {//5(9-11) => 1(9-11) && 4(9-11) => 0(9-11)
+        x[i-9] = bands[0][i];
+        y[i-9] = bands[1][i];
+        bands[0][i] = bands[4][i];
+        bands[1][i] = bands[5][i];
       }
-      bands[2][0] = bands[a][0];
-      bands[2][8] = bands[a][8];
-
-      for (int i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
+      for (int i = 9; i < 12; i++) {//0(11-9) => 5(9-11) && 3(11-9) => 4(9-11)
+        bands[5][i] = x[11-i];
+        bands[4][i] = y[11-i];
       }
-      bands[3][0] = bands[a][2];
-      bands[3][8] = bands[a][6];
-
-      for (int i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
-      bands[4][3] = bands[a][5];
-      bands[4][11] = bands[a][9];
-
-      for (int i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
-      bands[5][3] = bands[a][3];
-      bands[5][11] = bands[a][11];
-
+      bands[0][0] = bands[a][0];
+      bands[0][8] = bands[a][8];
+      bands[1][0] = bands[a][2];
+      bands[1][8] = bands[a][6];
+      bands[4][0] = bands[a][9];
+      bands[4][8] = bands[a][5];
+      bands[5][0] = bands[a][11];
+      bands[5][8] = bands[a][6];
       break;
     }
     case 3://Right - Top, Back, Bottom, Front
@@ -278,32 +261,24 @@ void Cube::clockwise(int a) {
     {//5(0-11) = 5(9-11,0-8)
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
-
-      for (int i = 9; i < 12; i++) {
-        x[i-9] = bands[2][i];
-        bands[2][i] = bands[5][i-9];
+      for (int i = 0; i < 3; i++) {//5(9-11) => 1(9-11) && 4(9-11) => 0(9-11)
+        x[i] = bands[2][i];
+        y[i] = bands[3][i];
+        bands[2][i] = bands[1][i];
+        bands[3][i] = bands[0][i];
       }
-      bands[2][0] = bands[a][0];
-      bands[2][8] = bands[a][8];
-
-      for (int i = 9; i < 12; i++) {
-        y[i-9] = bands[3][i];
-        bands[3][i] = bands[4][i-9];
+      for (int i = 0; i < 3; i++) {//0(11-9) => 5(9-11) && 3(11-9) => 4(9-11)
+        bands[0][i] = x[2-i];
+        bands[1][i] = y[2-i];
       }
-      bands[3][0] = bands[a][2];
-      bands[3][8] = bands[a][6];
-
-      for (int i = 0; i < 3; i++) {
-        bands[4][i] = x[2-i];
-      }
-      bands[4][3] = bands[a][5];
-      bands[4][11] = bands[a][9];
-
-      for (int i = 0; i < 3; i++) {
-        bands[5][i] = y[2-i];
-      }
-      bands[5][3] = bands[a][3];
-      bands[5][11] = bands[a][11];
+      bands[0][3] = bands[a][3];
+      bands[0][11] = bands[a][11];
+      bands[1][3] = bands[a][5];
+      bands[1][11] = bands[a][2];
+      bands[2][3] = bands[a][8];
+      bands[2][11] = bands[a][0];
+      bands[3][3] = bands[a][6];
+      bands[3][11] = bands[a][2];
       break;
     }
   }

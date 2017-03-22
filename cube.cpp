@@ -13,13 +13,41 @@ using namespace std;
 * Cube - Initial creation of cube.
 *
 * Notes: May be impacted by changing load order. Check when project reaches
-*        applicable phase in development.
+*        applicable phase in development. Current load order: Front, Right, Top,
+*        Back, Left, Bottom
+*
+*                   #################
+*                   #   Top         #
+*                   #   16  17  18  #
+*                   #   19  $   20  #
+*                   #   21  22  23  #
+* ####################################################
+* #   Left          #   Front       #   Right        #
+* #   32  33  34    #   0   1   2   #   8   9   10   #
+* #   35  $   36    #   3   $   4   #   11  $   12   #
+* #   37  38  39    #   5   6   7   #   13  14  15   #
+* ####################################################
+*                   #   Bottom      #
+*                   #   40  41  42  #
+*                   #   43  $   44  #
+*                   #   45  46  47  #
+*                   #################
+*                   #   Back        #
+*                   #   24  25  26  #
+*                   #   27  $   28  #
+*                   #   29  30  31  #
+*                   #################
+*
+* Debugging: Confirmed data was loaded into bands 2D array.
 */
 Cube::Cube() {
-  int nums[72] = {1,2,3,9,10,11,25,26,27,33,34,35,6,7,8,14,15,16,30,31,32,40,41,
-                  42,1,4,6,41,44,46,25,28,30,17,20,22,3,5,8, 43,45,48, 27,29,32,
-                  19,21,24,22,23,24,9,12,14,43,42,41,40,37,35,17,18,19,11,13,16,
-                  48,47,46,38,36,33};
+  init = 1;
+  int nums[72] = {0,  1,  2,  8,  9,  10, 24, 25, 26, 32, 33, 34,  //Band 0
+                  5,  6,  7,  13, 14, 15, 29, 30, 31, 37, 38, 39,  //Band 1
+                  0,  3,  5,  40, 43, 45, 29, 27, 24, 16, 19, 21,  //Band 2
+                  2,  4,  7,  42, 44, 47, 31, 28, 26, 18, 20, 23,  //Band 3
+                  16, 17, 18, 10, 12, 15, 47, 46, 45, 37, 35, 32,  //Band 4
+                  21, 22, 23, 8,  11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
   int j = -1;
   int l = 0;
   for (int i = 0; i < 48; i++) {
@@ -45,6 +73,11 @@ Cube::Cube() {
 *        applicable phase in development.
 */
 void Cube::initializeCube(fstream& stream) {
+  if (init > 1) {
+    for (size_t i = 0; i < 48; i++) {
+      pips[i]->data = "";
+    }
+  }
   char ch;
   int index = 0;
   while (stream.get(ch)) {
@@ -55,10 +88,13 @@ void Cube::initializeCube(fstream& stream) {
     index = index % 48;
   }
   if (index != 0) {
-    for (int i = 0; i < 48; i++) {
-      pips[i]->data += " ";
+    while(index != 0) {
+      pips[index]->data += " ";
+      index++;
+      index = index % 48;
     }
   }
+  init++;
 }
 
 
@@ -79,20 +115,11 @@ void Cube::deconstructCube(fstream& stream) {
 * @param {fstream} stream - input stream of cube transformations.
 */
 void Cube::transformationStream(fstream& stream) {
-  char face;
-  char direction;
-  string a, b, nl;
+  string a = "", b = "", tmp = "";
 
-  a = "";
-  b = "";
-
-  while (stream.get(face)) {
-    stream.get(direction);
-    a += face;
-    b += direction;
-    if (stream.peek() != EOF) {
-      stream.get(nl);
-    }
+  while (getline(stream, tmp)) {
+    a += tmp[0];
+    b += tmp[1];
   }
   transformationDispatch(a, b);
 }
@@ -104,10 +131,10 @@ void Cube::transformationStream(fstream& stream) {
 * @param {String} b - string indication clockwise or counterclockwise.
 */
 void Cube::transformationDispatch(string a, string b) {
-  for (int i = 0; i < a.length(); i++) {
+  for (unsigned int i = 0; i < a.size(); i++) {
     int x, y;
-    x = (int)(a[i]);
-    y = (int)(b[i]);
+    x = a[i] - '0';
+    y = b[i] - '0';
     switch (x) {
       case 0:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 1:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
@@ -133,19 +160,20 @@ void Cube::transformationDispatch(string a, string b) {
 *             direction
 * @param {Int} a - numerical indicator of which face to manipulate.
 *
-* Notes: cases including function threeFront are incomplete, cases containing
-*        threeBack are complete.
+* Notes: All cases are complete. Next step is to confirm by testing each case.
+*        Case 0 is confirmed. Entire function needs reworked with vector instead
+*        of array.
 */
 void Cube::clockwise(int a) {
-  int x[3];
-  int y[3];
+  vector<int> x;
+  vector<int> y;
   switch (a) {
     case 0://Top - Back, Right, Front, Left
     {//0(0-11) = 0(3-11,0-2)
       threeBack(a);
       for (int i = 9; i < 12; i++) {//5(0-2) => 2(9-11) && 4(0-2) => 3(9-11)
-        x[i-9] = bands[2][i];
-        y[i-9] = bands[3][i];
+        x.push_back(bands[2][i]);
+        y.push_back(bands[3][i]);
         bands[2][i] = bands[5][i-9];
         bands[3][i] = bands[4][i-9];
       }
@@ -168,8 +196,8 @@ void Cube::clockwise(int a) {
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
       for (int i = 3; i < 6; i++) {//4(8-6) => 2(3-5) && 5(8-6) => 3(3-5)
-        x[i-3] = bands[2][i];
-        y[i-3] = bands[3][i];
+        x.push_back(bands[2][i]);
+        y.push_back(bands[3][i]);
         bands[2][i] = bands[4][11-i];
         bands[3][i] = bands[5][11-i];
       }
@@ -192,8 +220,8 @@ void Cube::clockwise(int a) {
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
       for (int i = 9; i < 12; i++) {//5(9-11) => 1(9-11) && 4(9-11) => 0(9-11)
-        x[i-9] = bands[0][i];
-        y[i-9] = bands[1][i];
+        x.push_back(bands[0][i]);
+        y.push_back(bands[1][i]);
         bands[0][i] = bands[4][i];
         bands[1][i] = bands[5][i];
       }
@@ -215,14 +243,14 @@ void Cube::clockwise(int a) {
     {//3(0-11) = 3(3-11,0-2)
       threeBack(a);
       for (int i = 3; i < 6; i++) {//0(3-5) => 4(3-5) && 1(3-5) => 5(3-5)
-        x[i-3] = bands[4][i];
-        y[i-3] = bands[5][i];
-        bands[4][i] = bands[0][i];
-        bands[5][i] = bands[1][i];
+        x.push_back(bands[0][i]);
+        y.push_back(bands[1][i]);
+        bands[0][i] = bands[5][8-i];
+        bands[1][i] = bands[4][8-i];
       }
       for (int i = 3; i < 6; i++) {//5(5-3) => 0(3-5) && 4(5-3) => 1(3-5)
-        bands[1][i] = x[8-i];
-        bands[0][i] = y[8-i];
+        bands[4][i] = x[i-3];
+        bands[5][i] = y[i-3];
       }
       bands[0][2] = bands[a][0];
       bands[0][6] = bands[a][8];
@@ -238,8 +266,8 @@ void Cube::clockwise(int a) {
     {//4(0-11) = 4(3-11,0-2)
       threeBack(a);
       for (int i = 6; i < 9; i++) {//0(8-6) => 2(6-8) && 1(8-6) => 3(6-8)
-        x[i-6] = bands[2][i];
-        y[i-6] = bands[3][i];
+        x.push_back(bands[2][i]);
+        y.push_back(bands[3][i]);
         bands[2][i] = bands[0][14-i];
         bands[3][i] = bands[1][14-i];
       }
@@ -262,8 +290,8 @@ void Cube::clockwise(int a) {
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
       for (int i = 0; i < 3; i++) {//5(9-11) => 1(9-11) && 4(9-11) => 0(9-11)
-        x[i] = bands[2][i];
-        y[i] = bands[3][i];
+        x.push_back(bands[2][i]);
+        y.push_back(bands[3][i]);
         bands[2][i] = bands[1][i];
         bands[3][i] = bands[0][i];
       }
@@ -282,71 +310,56 @@ void Cube::clockwise(int a) {
       break;
     }
   }
-  return true;
+  x.erase (x.begin(),x.begin()+3);
+  y.erase (y.begin(),y.begin()+3);
 }
 
 
 /**
-* main - accept input file of instructions.
-* @param {Int} argc - number of arguments.
-* @param {Char Array} argv - char arrays containing commandline input.
-* @returns {Int}
+* counterclockwise - function that takes an instruction for which face to
+*                    opperate on and it preforms the shifting of the indicators
+*                    in the counterclockwise direction
+* @param {Int} a - numerical indicator of which face to manipulate.
+*
+* Notes: This function cheats by calling the clockwise function three times.
+*        This works because the changes are equal.
 */
-void Cube::counterclockwise(int a) {
-  clockwise(a);
-  clockwise(a);
-  clockwise(a);
-  return true;
-}
+void Cube::counterclockwise(int a) {clockwise(a); clockwise(a); clockwise(a);}
 
 
 /**
-* main - accept input file of instructions.
-* @param {Int} argc - number of arguments.
-* @param {Char Array} argv - char arrays containing commandline input.
-* @returns {Int}
+* threeBack - accepts a band to move three elements to the back of the array.
+* @param {Int} a - numerical indicator of which face to manipulate.
 */
 void Cube::threeBack(int a) {
-  int swap[3];
-  for (int i = 0; i < 3; i++) {
-    swap[i] = bands[a][i];
-  }
-  for (int i = 3; i < 10; i++) {
-    bands[a][i] = bands[a][i+1];
-  }
-  for (int i = 10; i < 13; i++) {
-    bands[a][i] = swap[i-10];
-  }
-  return true;
+  vector<int> v;
+  for (int i = 0; i < 3; i++) {v.push_back(bands[a][i]);}
+  for (int i = 3; i < 12; i++) {bands[a][i-3] = bands[a][i];}
+  for (int i = 9; i < 12; i++) {bands[a][i] = v[i-9];}
+  v.erase (v.begin(),v.begin()+3);
 }
 
 
 /**
-* main - accept input file of instructions.
-* @param {Int} argc - number of arguments.
-* @param {Char Array} argv - char arrays containing commandline input.
-* @returns {Int}
+* threeFront - accepts a band to move three elements to the front of the array.
+* @param {Int} a - numerical indicator of which face to manipulate.
 */
 void Cube::threeFront(int a) {
-  int swap[3];
-  for (int i = 9; i < 12; i++) {
-    swap[i] = bands[a][i];
-  }
-  for (int i = 11; i > 2; i++) {
-    bands[a][i] = bands[a][i-3];
-  }
-  for (int i = 0; i < 3; i++) {
-    bands[a][i] = swap[i];
-  }
-  return true;
+  vector<int> v;
+  for (int i = 9; i < 12; i++) {v.push_back(bands[a][i]);}
+  for (int i = 8; i > -1; i--) {bands[a][i+3] = bands[a][i];}
+  for (int i = 0; i < 3; i++) {bands[a][i] = v[i];}
+  v.erase (v.begin(),v.begin()+3);
 }
 
 
 /**
-* main - accept input file of instructions.
-* @param {Int} argc - number of arguments.
-* @param {Char Array} argv - char arrays containing commandline input.
-* @returns {Int}
+* print - outputs the data on the cube in the face order that it was entered.
+* @param {fstream} stream - output stream to send the data from the cube.
+*
+* Notes: If the face order is changed then this hard coding will not work. this
+*        only works in the case where the input order is: Front, Right, Top,
+*        Back, Left, Bottom.
 */
 void Cube::print(fstream& stream) {
   vector<int> v;
@@ -387,7 +400,67 @@ void Cube::print(fstream& stream) {
     v.push_back(bands[3][3]);
     v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
 
-    for (auto it = begin(v); it != end(v); ++it) {
-      stream << pips[*it-1]->data;
+    int index;
+    for (auto it = begin(v); it!=end(v); ++it) {
+      index = *it;
+      stream << pips[index]->data;
     }
+    v.erase (v.begin(),v.begin()+48);
+}
+
+void Cube::print() {
+  vector<int> v;
+  //Print faces in order: Front, Right, Top, Back, Left, Bottom
+  /* Front - band(0): 1, 2, 3 | band(2): 2 | band(3): 2 | band(1): 1, 2, 3 */
+    v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
+    v.push_back(bands[2][1]);
+    v.push_back(bands[3][1]);
+    v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+
+  /* Right - band(0): 4, 5, 6 | band(4): 5 | band(5): 5 | band(1): 4, 5, 6 */
+    v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
+    v.push_back(bands[4][4]);
+    v.push_back(bands[5][4]);
+    v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
+
+  /* Top - band(5): 1, 2, 3 | band(2): 11 | band(3): 11 | band(4): 1, 2, 3 */
+    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+    v.push_back(bands[2][10]);
+    v.push_back(bands[3][10]);
+    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+
+  /* Back - band(0): 7, 8, 9 | band(2): 8 | band(3): 8 | band(1): 7, 8, 9 */
+    v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
+    v.push_back(bands[2][7]);
+    v.push_back(bands[3][7]);
+    v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
+
+  /* Left - band(0): 10, 11, 12 | band(5): 11 | band(4): 11 | band(1): 10, 11, 12 */
+    v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
+    v.push_back(bands[5][10]);
+    v.push_back(bands[4][10]);
+    v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
+
+  /* Bottom - band(4): 9, 8, 7 | band(2): 4 | band(3): 4 | band(5): 9, 8, 7 */
+    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
+    v.push_back(bands[2][3]);
+    v.push_back(bands[3][3]);
+    v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+
+    int index;
+    for (auto it = begin(v); it!=end(v); ++it) {
+      index = *it;
+      cout << pips[index]->data;
+    }
+    cout << endl;
+    v.erase (v.begin(),v.begin()+48);
+}
+
+void Cube::print_bands() {
+  for (int i = 0; i < 6; i++) {
+    for (int k = 0; k < 12; k++) {
+      cout << bands[i][k] << "\t";
+    }
+    cout << endl;
+  }
 }

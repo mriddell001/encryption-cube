@@ -7,6 +7,7 @@ Expected form of input:
       Action                    -> (INT)
       Action FileName           -> (INT) (STRING)
       Action Filename FileName  -> (INT) (STRING) (STRING)
+2. Debugging flag.
 **/
 
 //data_structure Read & Load
@@ -26,6 +27,11 @@ using namespace std;
 * @returns {Int}
 */
 int main(int argc, char const *argv[]) {
+  bool debugging = false;
+  if (argc > 2) {
+    string flag = argv[2];
+    if (flag == "-d") {debugging = true;}
+  }
   fstream astream (argv[1], ios::in);
   if (astream.is_open()) {
     Cube cube;
@@ -36,36 +42,48 @@ int main(int argc, char const *argv[]) {
       ss.clear();
       ss << action[0];
       ss >> a;
+      if (debugging) {cout << "main switch: ";}
       switch (a) {
-        case 0:
+        case 0: //INPUT FILE
         {
+          if (debugging) {cout << "0\n";}
           string fileName = action.substr(2, action.length()-2);
           fstream istream (fileName, fstream::in);
           cube.initializeCube(istream);
           istream.close();
           break;
         }
-        case 1:
+        case 1: //TRANSFORM CUBE
         {
+          if (debugging) {cout << "1\n";}
           string fileName = action.substr(2, action.length()-2);
           fstream istream (fileName, fstream::in);
           cube.transformationStream(istream);
           istream.close();
+          if (debugging) {cube.print_bands();}
           break;
         }
-        case 2:
+        case 2: //OUTPUT FILE
         {
+          if (debugging) {cout << "2\n";}
           string fileName = action.substr(2, action.length()-2);
-          size_t pos = fileName.find(" ");
-          string output = fileName.substr(pos);
-          string input = action.substr(0, fileName.length()-(output.length()+1));
+          fstream ostream (fileName, fstream::out);
+          cube.print(ostream);
+          ostream.close();
           break;
         }
-        case 3:
+        case 3: //PRINT TO OUTPUT FILE
         {
+          if (debugging) {cout << "3\n";}
           fstream ostream ("output.txt", fstream::out);
           cube.print(ostream);
           ostream.close();
+          break;
+        }
+        case 4: //PRINT TO SCREEN
+        {
+          if (debugging) {cout << "4\n";}
+          cube.print();
           break;
         }
         default:

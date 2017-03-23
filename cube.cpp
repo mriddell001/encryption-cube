@@ -394,11 +394,11 @@ void Cube::print(fstream& stream) {
     v.push_back(bands[4][10]);
     v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(4): 9, 8, 7 | band(2): 4 | band(3): 4 | band(5): 9, 8, 7 */
-    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
-    v.push_back(bands[2][3]);
-    v.push_back(bands[3][3]);
+  /* Bottom - band(5): 9, 8, 7 | band(2): 4 | band(3): 4 | band(4): 9, 8, 7 */
     v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+    v.push_back(bands[2][4]);
+    v.push_back(bands[3][4]);
+    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
 
     int index;
     for (auto it = begin(v); it!=end(v); ++it) {
@@ -442,10 +442,10 @@ void Cube::print() {
     v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
   /* Bottom - band(4): 9, 8, 7 | band(2): 4 | band(3): 4 | band(5): 9, 8, 7 */
-    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
-    v.push_back(bands[2][3]);
-    v.push_back(bands[3][3]);
     v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+    v.push_back(bands[2][4]);
+    v.push_back(bands[3][4]);
+    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
 
     int index;
     for (auto it = begin(v); it!=end(v); ++it) {

@@ -23,14 +23,11 @@
 #    -g           ==> keep additional information to aid in debugging
 #    -o           ==> specify the output filename
 #    -c           ==> compile only (create a .o file)
-main: cube.o main.o
-	g++ -std=c++11 -Wall -pedantic -g -o main main.o cube.o
+combo: combinations.o
+	g++ -std=c++11 -Wall -pedantic -g -o combo combinations.o
 
-main.o: cube.h main.cpp
-	g++ -std=c++11 -Wall -pedantic -g -c main.cpp
-
-cube.o: cube.h cube.cpp
-	g++ -std=c++11 -Wall -pedantic -g -c cube.cpp
+combinations.o: combinations.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c combinations.cpp
 
 clean:
-	rm -f main main.exe main.o cube.o
+	rm -f combo combo.exe combinations.o output0.txt output1.txt output2.txt output3.txt output4.txt output5.txt

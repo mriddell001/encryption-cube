@@ -23,14 +23,11 @@
 #    -g           ==> keep additional information to aid in debugging
 #    -o           ==> specify the output filename
 #    -c           ==> compile only (create a .o file)
-main: cube.o main.o
-	g++ -std=c++11 -Wall -pedantic -g -o main main.o cube.o
+sc: sort_combine.o
+	g++ -std=c++11 -Wall -pedantic -g -o sc sort_combine.o
 
-main.o: cube.h main.cpp
-	g++ -std=c++11 -Wall -pedantic -g -c main.cpp
-
-cube.o: cube.h cube.cpp
-	g++ -std=c++11 -Wall -pedantic -g -c cube.cpp
+sort_combine.o: sort_combine.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c sort_combine.cpp
 
 clean:
-	rm -f main main.exe main.o cube.o
+	rm -f sc sc.exe sort_combine.o full_list.txt

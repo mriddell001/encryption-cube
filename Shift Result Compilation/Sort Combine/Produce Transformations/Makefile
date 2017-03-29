@@ -33,4 +33,4 @@ cube.o: cube.h cube.cpp
 	g++ -std=c++11 -Wall -pedantic -g -c cube.cpp
 
 clean:
-	rm -f main main.exe main.o cube.o
+	rm -f main main.exe main.o cube.o total_output.txt

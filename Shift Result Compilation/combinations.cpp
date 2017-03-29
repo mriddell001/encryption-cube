@@ -4,6 +4,8 @@
 
 using namespace std;
 
+bool skip(int i, string input);
+
 int main() {
   for (int iterations = 0; iterations < 4; iterations++) {
     string input = "output";
@@ -53,13 +55,7 @@ int main() {
           ostream << cw << "\n" << ccw;
         }
       }
-      if (tmp != last) {
-        ostream << endl;
-        cout << "tmp: " << tmp << "\tlast: " << last << endl;
-      }
-      else {
-        cout << "last: " << last << endl;
-      }
+      if (last != tmp) {ostream << endl;}
     }
     istream.close();
     ostream.close();

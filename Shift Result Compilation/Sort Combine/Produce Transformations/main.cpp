@@ -26,88 +26,20 @@ using namespace std;
 * @param {Char Array} argv - char arrays containing commandline input.
 * @returns {Int}
 */
-int main(int argc, char const *argv[]) {
-  bool debugging = false;
-  if (argc > 2) {
-    string flag = argv[2];
-    if (flag == "-d") {debugging = true;}
+int main() {
+  fstream istream ("full_list.txt", fstream::in);
+  fstream ostream ("total_output.txt", fstream::out);
+  string tmp = "";
+  while (getline(istream, tmp)) {
+    fstream input ("basic.txt", fstream::in);
+    Cube pmt;
+    pmt.initializeCube(input);
+    pmt.transformationString(tmp);
+    pmt.print(ostream);
+    ostream << "\t" << tmp << endl;
+    input.close();
   }
-  fstream astream (argv[1], ios::in);
-  if (astream.is_open()) {
-    Cube cube;
-    string action;
-    stringstream ss;
-    int a;
-    while (getline(astream, action)) {
-      ss.clear();
-      ss << action[0];
-      ss >> a;
-      if (debugging) {cout << "main switch: ";}
-      switch (a) {
-        case 0: //INPUT FILE
-        {
-          if (debugging) {cout << "0\n";}
-          string fileName = action.substr(2, action.length()-2);
-          fstream istream (fileName, fstream::in);
-          cube.initializeCube(istream);
-          istream.close();
-          break;
-        }
-        case 1: //TRANSFORM CUBE
-        {
-          if (debugging) {cout << "1\n";}
-          string fileName = action.substr(2, action.length()-2);
-          fstream istream (fileName, fstream::in);
-          cube.transformationStream(istream);
-          istream.close();
-          if (debugging) {cube.print_bands();}
-          break;
-        }
-        case 2: //OUTPUT FILE
-        {
-          if (debugging) {cout << "2\n";}
-          string fileName = action.substr(2, action.length()-2);
-          fstream ostream (fileName, fstream::out);
-          cube.print(ostream);
-          ostream.close();
-          break;
-        }
-        case 3: //PRINT TO OUTPUT FILE
-        {
-          if (debugging) {cout << "3\n";}
-          fstream ostream ("output.txt", fstream::out);
-          cube.print(ostream);
-          ostream.close();
-          break;
-        }
-        case 4: //PRINT TO SCREEN
-        {
-          if (debugging) {cout << "4\n";}
-          cube.print();
-          break;
-        }
-        case 5: //MULTIPLE transformationStream
-        {//Continue working here.
-          if (debugging) {cout << "5\n";}
-          string fileName = action.substr(2, action.length()-2);
-          fstream istream (fileName, fstream::in);
-          string tmp = "";
-          fstream ostream ("output.txt", fstream::out);
-          ostream.close();
-          while (getline(fileName, tmp)) {
-            Cube pmt = cube;
-            pmt.transformationString(tmp)
-            pmt.print(ostream);
-          }
-        }
-        default:
-        break;
-      }
-    }
-    astream.close();
-  }
-  else {
-    cout << "Could not open instruction file.\n";
-  }
+  istream.close();
+  ostream.close();
   return 0;
 }

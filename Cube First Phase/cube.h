@@ -28,9 +28,7 @@ private:
   class Pip {                                         // Represents on square on the cube
     public:
       string data;
-      int location;
-      int face;
-      Pip(int i, int j){location = i;face = j;};
+      Pip(){};
       ~Pip();
     };
   vector<Pip*> pips;                                   // data storage

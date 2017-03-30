@@ -1,0 +1,21 @@
+main switch: 0
+main switch: 4
+ABCDEFGHIJKMLNOPQRSTUVWXYZabcdefghikjlmnopqrstuv
+main switch: 1
+string a: 44	string b: 01
+ABCDEFGHIJKMLNOPQRSTUVWXYZabcdefghikjlmnopqrstuv
+ABCDEFGHIJvuLNOtKMPTUVWXfcaZedbYShikRQmnopqrsgjl
+ABCDEFGHIJvuLNOtKMPTUVWXfcaZedbYShikRQmnopqrsgjl
+ABCDEFGHIJljLNOgvutTUVWXfedcbaZYPhikMKmnopqrsSRQ
+ABCDEFGHIJljLNOgvutTUVWXfedcbaZYPhikMKmnopqrsSRQ
+ABCDEFGHIJQRLNOSljgTUVWXYbdeZacfthikuvmnopqrsPMK
+ABCDEFGHIJQRLNOSljgTUVWXYbdeZacfthikuvmnopqrsPMK
+ABCDEFGHIJKMLNOPQRSTUVWXYZabcdefghikjlmnopqrstuv
+0	1	2	8	9	10	24	25	26	32	33	34	
+5	6	7	13	14	15	29	30	31	37	38	39	
+0	3	5	40	43	45	29	27	24	16	19	21	
+2	4	7	42	44	47	31	28	26	18	20	23	
+16	17	18	10	12	15	47	46	45	37	35	32	
+21	22	23	8	11	13	42	41	40	39	36	34	
+main switch: 4
+ABCDEFGHIJKMLNOPQRSTUVWXYZabcdefghikjlmnopqrstuv

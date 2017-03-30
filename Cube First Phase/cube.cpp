@@ -33,9 +33,9 @@ using namespace std;
 *                   #   45  46  47  #
 *                   #################
 *                   #   Back        #
-*                   #   24  25  26  #
-*                   #   27  $   28  #
-*                   #   29  30  31  #
+*                   #   31  30  29  #
+*                   #   28  $   27  #
+*                   #   26  25  24  #
 *                   #################
 *
 * Debugging: Confirmed data was loaded into bands 2D array.
@@ -47,12 +47,10 @@ Cube::Cube() {
                   0,  3,  5,  40, 43, 45, 29, 27, 24, 16, 19, 21,  //Band 2
                   2,  4,  7,  42, 44, 47, 31, 28, 26, 18, 20, 23,  //Band 3
                   16, 17, 18, 10, 12, 15, 47, 46, 45, 37, 35, 32,  //Band 4
-                  21, 22, 23, 8,  11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
-  int j = -1;
+                  21, 22, 23,  8, 11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
   int l = 0;
   for (int i = 0; i < 48; i++) {
-    if ((i % 8) == 0) {j++;}
-    Pip *tmp = new Pip(i, j);
+    Pip *tmp = new Pip();
     pips.push_back(tmp);
   }
   for (int i = 0; i < 6; i++) {
@@ -73,15 +71,10 @@ Cube::Cube() {
 *        applicable phase in development.
 */
 void Cube::initializeCube(fstream& stream) {
-  if (init > 1) {
-    for (size_t i = 0; i < 48; i++) {
-      pips[i]->data = "";
-    }
-  }
   char ch;
   int index = 0;
   while (stream.get(ch)) {
-    string str;
+    string str = "";
     str.push_back(ch);
     pips[index]->data += str;
     index++;
@@ -121,6 +114,7 @@ void Cube::transformationStream(fstream& stream) {
     a += tmp[0];
     b += tmp[1];
   }
+  cout << "string a: " << a << "\tstring b: " << b << endl;
   transformationDispatch(a, b);
 }
 
@@ -236,7 +230,7 @@ void Cube::clockwise(int a) {
       bands[4][0] = bands[a][9];
       bands[4][8] = bands[a][5];
       bands[5][0] = bands[a][11];
-      bands[5][8] = bands[a][6];
+      bands[5][8] = bands[a][3];
       break;
     }
     case 3://Right - Top, Back, Bottom, Front
@@ -265,15 +259,15 @@ void Cube::clockwise(int a) {
     case 4://Back - Top, Left, Bottom, Right
     {//4(0-11) = 4(3-11,0-2)
       threeBack(a);
-      for (int i = 6; i < 9; i++) {//0(8-6) => 2(6-8) && 1(8-6) => 3(6-8)
-        x.push_back(bands[2][i]);
-        y.push_back(bands[3][i]);
-        bands[2][i] = bands[0][14-i];
-        bands[3][i] = bands[1][14-i];
+      for (int i = 6; i < 9; i++) {//3(6-8) => 0(6-8) && 2(6-8) => 1(6-8)
+        x.push_back(bands[0][i]);
+        y.push_back(bands[1][i]);
+        bands[0][i] = bands[3][i];
+        bands[1][i] = bands[2][i];
       }
-      for (int i = 6; i < 9; i++) {//2(6-8) => 1(6-8) && 3(6-8) => 0(6-8)
-        bands[1][i] = x[i-6];
-        bands[0][i] = y[i-6];
+      for (int i = 6; i < 9; i++) {//0(6-8) => 2(8-6) && 1(6-8) => 3(8-6)
+        bands[2][i] = x[8-i];
+        bands[3][i] = y[8-i];
       }
       bands[0][5] = bands[a][3];
       bands[0][9] = bands[a][11];
@@ -289,7 +283,7 @@ void Cube::clockwise(int a) {
     {//5(0-11) = 5(9-11,0-8)
       //Take the last three elements and move them to the front of the array.
       threeFront(a);
-      for (int i = 0; i < 3; i++) {//5(9-11) => 1(9-11) && 4(9-11) => 0(9-11)
+      for (int i = 0; i < 3; i++) {//1(0-2) => 2(0-2) && 0(0-2) => 3(0-2)
         x.push_back(bands[2][i]);
         y.push_back(bands[3][i]);
         bands[2][i] = bands[1][i];
@@ -302,7 +296,7 @@ void Cube::clockwise(int a) {
       bands[0][3] = bands[a][3];
       bands[0][11] = bands[a][11];
       bands[1][3] = bands[a][5];
-      bands[1][11] = bands[a][2];
+      bands[1][11] = bands[a][9];
       bands[2][3] = bands[a][8];
       bands[2][11] = bands[a][0];
       bands[3][3] = bands[a][6];
@@ -360,41 +354,62 @@ void Cube::threeFront(int a) {
 * Notes: If the face order is changed then this hard coding will not work. this
 *        only works in the case where the input order is: Front, Right, Top,
 *        Back, Left, Bottom.
+*                   #################
+*                   #   Top         #
+*                   #   16  17  18  #
+*                   #   19  $   20  #
+*                   #   21  22  23  #
+* ####################################################
+* #   Left          #   Front       #   Right        #
+* #   32  33  34    #   0   1   2   #   8   9   10   #
+* #   35  $   36    #   3   $   4   #   11  $   12   #
+* #   37  38  39    #   5   6   7   #   13  14  15   #
+* ####################################################
+*                   #   Bottom      #
+*                   #   40  41  42  #
+*                   #   43  $   44  #
+*                   #   45  46  47  #
+*                   #################
+*                   #   Back        #
+*                   #   31  30  29  #
+*                   #   28  $   27  #
+*                   #   26  25  24  #
+*                   #################
 */
 void Cube::print(fstream& stream) {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom
-  /* Front - band(0): 1, 2, 3 | band(2): 2 | band(3): 2 | band(1): 1, 2, 3 */
+  /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
     v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
     v.push_back(bands[2][1]);
     v.push_back(bands[3][1]);
     v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
 
-  /* Right - band(0): 4, 5, 6 | band(4): 5 | band(5): 5 | band(1): 4, 5, 6 */
+  /* Right - band(0): 3, 4, 5 | band(4): 4 | band(5): 4 | band(1): 3, 4, 5 */
     v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
     v.push_back(bands[4][4]);
     v.push_back(bands[5][4]);
     v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
 
-  /* Top - band(5): 1, 2, 3 | band(2): 11 | band(3): 11 | band(4): 1, 2, 3 */
-    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+  /* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
+    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
     v.push_back(bands[2][10]);
     v.push_back(bands[3][10]);
-    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
 
-  /* Back - band(0): 7, 8, 9 | band(2): 8 | band(3): 8 | band(1): 7, 8, 9 */
+  /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
     v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
     v.push_back(bands[2][7]);
     v.push_back(bands[3][7]);
     v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-  /* Left - band(0): 10, 11, 12 | band(5): 11 | band(4): 11 | band(1): 10, 11, 12 */
+  /* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
     v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
     v.push_back(bands[5][10]);
     v.push_back(bands[4][10]);
     v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(5): 9, 8, 7 | band(2): 4 | band(3): 4 | band(4): 9, 8, 7 */
+  /* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
     v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
     v.push_back(bands[2][4]);
     v.push_back(bands[3][4]);
@@ -405,43 +420,73 @@ void Cube::print(fstream& stream) {
       index = *it;
       stream << pips[index]->data;
     }
+    cout << endl;
     v.erase (v.begin(),v.begin()+48);
 }
 
+/**
+* print - outputs the data on the cube in the face order that it was entered.
+* @param {fstream} stream - output stream to send the data from the cube.
+*
+* Notes: If the face order is changed then this hard coding will not work. this
+*        only works in the case where the input order is: Front, Right, Top,
+*        Back, Left, Bottom.
+*                   #################
+*                   #   Top         #
+*                   #   16  17  18  #
+*                   #   19  $   20  #
+*                   #   21  22  23  #
+* ####################################################
+* #   Left          #   Front       #   Right        #
+* #   32  33  34    #   0   1   2   #   8   9   10   #
+* #   35  $   36    #   3   $   4   #   11  $   12   #
+* #   37  38  39    #   5   6   7   #   13  14  15   #
+* ####################################################
+*                   #   Bottom      #
+*                   #   40  41  42  #
+*                   #   43  $   44  #
+*                   #   45  46  47  #
+*                   #################
+*                   #   Back        #
+*                   #   31  30  29  #
+*                   #   28  $   27  #
+*                   #   26  25  24  #
+*                   #################
+*/
 void Cube::print() {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom
-  /* Front - band(0): 1, 2, 3 | band(2): 2 | band(3): 2 | band(1): 1, 2, 3 */
+  /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
     v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
     v.push_back(bands[2][1]);
     v.push_back(bands[3][1]);
     v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
 
-  /* Right - band(0): 4, 5, 6 | band(4): 5 | band(5): 5 | band(1): 4, 5, 6 */
+  /* Right - band(0): 3, 4, 5 | band(4): 4 | band(5): 4 | band(1): 3, 4, 5 */
     v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
     v.push_back(bands[4][4]);
     v.push_back(bands[5][4]);
     v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
 
-  /* Top - band(5): 1, 2, 3 | band(2): 11 | band(3): 11 | band(4): 1, 2, 3 */
-    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+  /* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
+    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
     v.push_back(bands[2][10]);
     v.push_back(bands[3][10]);
-    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
 
-  /* Back - band(0): 7, 8, 9 | band(2): 8 | band(3): 8 | band(1): 7, 8, 9 */
+  /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
     v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
     v.push_back(bands[2][7]);
     v.push_back(bands[3][7]);
     v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-  /* Left - band(0): 10, 11, 12 | band(5): 11 | band(4): 11 | band(1): 10, 11, 12 */
+  /* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
     v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
     v.push_back(bands[5][10]);
     v.push_back(bands[4][10]);
     v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(4): 9, 8, 7 | band(2): 4 | band(3): 4 | band(5): 9, 8, 7 */
+  /* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
     v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
     v.push_back(bands[2][4]);
     v.push_back(bands[3][4]);

@@ -35,7 +35,7 @@ using namespace std;
 *                   #   Back        #
 *                   #   31  30  29  #
 *                   #   28  $   27  #
-*                   #   26  25  24  #
+*                   #   26  25  24  # <- Top Left Corner
 *                   #################
 *
 * Debugging: Confirmed data was loaded into bands 2D array.
@@ -44,8 +44,8 @@ Cube::Cube() {
   init = 1;
   int nums[72] = {0,  1,  2,  8,  9,  10, 24, 25, 26, 32, 33, 34,  //Band 0
                   5,  6,  7,  13, 14, 15, 29, 30, 31, 37, 38, 39,  //Band 1
-                  0,  3,  5,  40, 43, 45, 29, 27, 24, 16, 19, 21,  //Band 2
-                  2,  4,  7,  42, 44, 47, 31, 28, 26, 18, 20, 23,  //Band 3
+                  0,  3,  5,  40, 43, 45, 31, 28, 26, 16, 19, 21,  //Band 2
+                  2,  4,  7,  42, 44, 47, 29, 27, 24, 18, 20, 23,  //Band 3
                   16, 17, 18, 10, 12, 15, 47, 46, 45, 37, 35, 32,  //Band 4
                   21, 22, 23,  8, 11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
   int l = 0;
@@ -110,7 +110,8 @@ void Cube::transformationString(string stream) {
   string a = "", b = "";
 
   if ((stream.length() % 2) == 0) {
-    for (int i = 0; i < stream.length(); i++) {
+    int slen = stream.length();
+    for (int i = 0; i < slen; i++) {
       a += stream[i];
       b += stream[i+1];
       i++;
@@ -118,7 +119,8 @@ void Cube::transformationString(string stream) {
   }
   else {
     string tmp = stream.substr(0, stream.length()-1);
-    for (int i = 0; i < tmp.length(); i++) {
+    int tlen = tmp.length();
+    for (int i = 0; i < tlen; i++) {
       a += stream[i];
       b += stream[i+1];
       i++;
@@ -422,11 +424,11 @@ void Cube::print(fstream& stream) {
 
 /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
   v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-  v.push_back(bands[2][7]);
   v.push_back(bands[3][7]);
+  v.push_back(bands[2][7]);
   v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-/* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
+/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
   v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
   v.push_back(bands[4][10]);
   v.push_back(bands[5][10]);
@@ -479,47 +481,48 @@ void Cube::print() {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom
   /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
-    v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
-    v.push_back(bands[2][1]);
-    v.push_back(bands[3][1]);
-    v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+  v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
+  v.push_back(bands[2][1]);
+  v.push_back(bands[3][1]);
+  v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
 
-  /* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
-    v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
-    v.push_back(bands[5][4]);
-    v.push_back(bands[4][4]);
-    v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
+/* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
+  v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
+  v.push_back(bands[5][4]);
+  v.push_back(bands[4][4]);
+  v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
 
-  /* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
-    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
-    v.push_back(bands[2][10]);
-    v.push_back(bands[3][10]);
-    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+/* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
+  v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+  v.push_back(bands[2][10]);
+  v.push_back(bands[3][10]);
+  v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
 
-  /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
-    v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-    v.push_back(bands[2][7]);
-    v.push_back(bands[3][7]);
-    v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
+/* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
+  v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
+  v.push_back(bands[3][7]);
+  v.push_back(bands[2][7]);
+  v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-  /* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
-    v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
-    v.push_back(bands[4][10]);
-    v.push_back(bands[5][10]);
-    v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
+/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
+  v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
+  v.push_back(bands[4][10]);
+  v.push_back(bands[5][10]);
+  v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
-    v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
-    v.push_back(bands[2][4]);
-    v.push_back(bands[3][4]);
-    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
+/* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
+  v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+  v.push_back(bands[2][4]);
+  v.push_back(bands[3][4]);
+  v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
 
     int index;
+    string str = "";
     for (auto it = begin(v); it!=end(v); ++it) {
       index = *it;
-      cout << pips[index]->data;
+      str += pips[index]->data;
     }
-    cout << endl;
+    cout << str << endl;
     v.erase (v.begin(),v.begin()+48);
 }
 

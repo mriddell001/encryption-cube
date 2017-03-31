@@ -24,7 +24,6 @@ int main() {
     }
     istream.close();
   }
-  sort (s_vec.begin(), s_vec.end(), fComp);
   for (vector<string>::iterator it = s_vec.begin(); it != s_vec.end(); ++it) {
     ostream << *it << endl;
   }

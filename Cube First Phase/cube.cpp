@@ -165,15 +165,15 @@ void Cube::clockwise(int a) {
     case 0://Top - Back, Right, Front, Left
     {//0(0-11) = 0(3-11,0-2)
       threeBack(a);
-      for (int i = 9; i < 12; i++) {//5(0-2) => 2(9-11) && 4(0-2) => 3(9-11)
-        x.push_back(bands[2][i]);
-        y.push_back(bands[3][i]);
-        bands[2][i] = bands[5][i-9];
-        bands[3][i] = bands[4][i-9];
-      }
       for (int i = 0; i < 3; i++) {//2(11-9) => 4(0-2) && 3(11-9) => 5(0-2)
-        bands[4][i] = x[2-i];
-        bands[5][i] = y[2-i];
+        x.push_back(bands[4][i]);
+        y.push_back(bands[5][i]);
+        bands[4][i] = bands[2][11-i];
+        bands[5][i] = bands[3][11-i];
+      }
+      for (int i = 9; i < 12; i++) {//4(0-2) => 3(9-11) && 5(0-2) => 2(9-11)
+        bands[3][i] = x[i-9];
+        bands[2][i] = y[i-9];
       }
       bands[2][0] = bands[a][0];
       bands[2][8] = bands[a][8];
@@ -195,9 +195,9 @@ void Cube::clockwise(int a) {
         bands[2][i] = bands[4][11-i];
         bands[3][i] = bands[5][11-i];
       }
-      for (int i = 6; i < 9; i++) {//2(5-3) => 5(6-8) && 3(11-9) => 4(0-2)
-        bands[5][i] = x[8-i];
-        bands[4][i] = y[8-i];
+      for (int i = 6; i < 9; i++) {//2(3-5) => 5(6-8) && 3(3-5) => 4(6-8)
+        bands[5][i] = x[i-6];
+        bands[4][i] = y[i-6];
       }
       bands[2][2] = bands[a][0];
       bands[2][6] = bands[a][8];
@@ -380,47 +380,46 @@ void Cube::print(fstream& stream) {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom
   /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
-    v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
-    v.push_back(bands[2][1]);
-    v.push_back(bands[3][1]);
-    v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+  v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
+  v.push_back(bands[2][1]);
+  v.push_back(bands[3][1]);
+  v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
 
-  /* Right - band(0): 3, 4, 5 | band(4): 4 | band(5): 4 | band(1): 3, 4, 5 */
-    v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
-    v.push_back(bands[4][4]);
-    v.push_back(bands[5][4]);
-    v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
+/* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
+  v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
+  v.push_back(bands[5][4]);
+  v.push_back(bands[4][4]);
+  v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
 
-  /* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
-    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
-    v.push_back(bands[2][10]);
-    v.push_back(bands[3][10]);
-    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+/* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
+  v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+  v.push_back(bands[2][10]);
+  v.push_back(bands[3][10]);
+  v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
 
-  /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
-    v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-    v.push_back(bands[2][7]);
-    v.push_back(bands[3][7]);
-    v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
+/* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
+  v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
+  v.push_back(bands[3][7]);
+  v.push_back(bands[2][7]);
+  v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-  /* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
-    v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
-    v.push_back(bands[5][10]);
-    v.push_back(bands[4][10]);
-    v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
+/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
+  v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
+  v.push_back(bands[4][10]);
+  v.push_back(bands[5][10]);
+  v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
-    v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
-    v.push_back(bands[2][4]);
-    v.push_back(bands[3][4]);
-    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
+/* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
+  v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+  v.push_back(bands[2][4]);
+  v.push_back(bands[3][4]);
+  v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
 
     int index;
     for (auto it = begin(v); it!=end(v); ++it) {
       index = *it;
       stream << pips[index]->data;
     }
-    cout << endl;
     v.erase (v.begin(),v.begin()+48);
 }
 
@@ -457,47 +456,48 @@ void Cube::print() {
   vector<int> v;
   //Print faces in order: Front, Right, Top, Back, Left, Bottom
   /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
-    v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
-    v.push_back(bands[2][1]);
-    v.push_back(bands[3][1]);
-    v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+  v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
+  v.push_back(bands[2][1]);
+  v.push_back(bands[3][1]);
+  v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
 
-  /* Right - band(0): 3, 4, 5 | band(4): 4 | band(5): 4 | band(1): 3, 4, 5 */
-    v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
-    v.push_back(bands[4][4]);
-    v.push_back(bands[5][4]);
-    v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
+/* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
+  v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
+  v.push_back(bands[5][4]);
+  v.push_back(bands[4][4]);
+  v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
 
-  /* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
-    v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
-    v.push_back(bands[2][10]);
-    v.push_back(bands[3][10]);
-    v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
+/* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
+  v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
+  v.push_back(bands[2][10]);
+  v.push_back(bands[3][10]);
+  v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
 
-  /* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
-    v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-    v.push_back(bands[2][7]);
-    v.push_back(bands[3][7]);
-    v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
+/* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
+  v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
+  v.push_back(bands[3][7]);
+  v.push_back(bands[2][7]);
+  v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
 
-  /* Left - band(0): 9, 10, 11 | band(5): 10 | band(4): 10 | band(1): 9, 10, 11 */
-    v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
-    v.push_back(bands[5][10]);
-    v.push_back(bands[4][10]);
-    v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
+/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
+  v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
+  v.push_back(bands[4][10]);
+  v.push_back(bands[5][10]);
+  v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
 
-  /* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
-    v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
-    v.push_back(bands[2][4]);
-    v.push_back(bands[3][4]);
-    v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
+/* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
+  v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
+  v.push_back(bands[2][4]);
+  v.push_back(bands[3][4]);
+  v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
 
     int index;
+    string str = "";
     for (auto it = begin(v); it!=end(v); ++it) {
       index = *it;
-      cout << pips[index]->data;
+      str += pips[index]->data;
     }
-    cout << endl;
+    cout << str << endl;
     v.erase (v.begin(),v.begin()+48);
 }
 

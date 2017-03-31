@@ -15,6 +15,7 @@ public:
   void deconstructCube(fstream&);                     // streams out data
   int getSize(){return pips.size();}
   void transformationStream(fstream&);                // streams in movement data
+  void transformationString(string stream);
   void transformationDispatch(string a, string b);
   void print(fstream& stream);                        // prints out data
   void print();
@@ -28,9 +29,7 @@ private:
   class Pip {                                         // Represents on square on the cube
     public:
       string data;
-      int location;
-      int face;
-      Pip(int i, int j){location = i;face = j;};
+      Pip(){};
       ~Pip();
     };
   vector<Pip*> pips;                                   // data storage

@@ -15,6 +15,8 @@ Expected form of input:
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <time.h>
+#include <stdio.h>
 
 #include "cube.h"
 
@@ -27,11 +29,30 @@ using namespace std;
 * @returns {Int}
 */
 int main(int argc, char const *argv[]) {
-  bool debugging = false;
-  if (argc > 2) {
-    string flag = argv[2];
-    if (flag == "-d") {debugging = true;}
+  //File to be encoded.
+  string input = argv[1];
+  int l = input.length(), p = l-4;
+  char dot = input[p];
+  if (dot != '.') {//1.cube
+    string newname = input.substr(0, p-1);
+    string keyfile, keytxt, keyname = newname;
+    keyfile += ".key";
+    keytxt += ".txt";
+    newname += ".txt";
+    rename(argv[1], newname);
+    rename(keyfile, keytxt);
+    fstream cstream (newname, ios::in);
+    fstream kstream (keytxt, ios::in);
+    //Key and cube is in txt format.
   }
+  else {
+    fstream cstream (argv[1], ios::in);
+    fstream istream ("ci.txt", ios::in);
+    int l = rand() % 105046 + 1;
+    string tmp;
+    while (l) {getline(istream, tmp);l--;}
+  }
+  int debugging = 0;
   fstream astream (argv[1], ios::in);
   if (astream.is_open()) {
     Cube cube;

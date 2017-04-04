@@ -29,11 +29,17 @@ sort: sort_map.o
 strip: strip.o
 		g++ -std=c++11 -Wall -pedantic -g -o strip strip.o
 
+part: part.o
+		g++ -std=c++11 -Wall -pedantic -g -o part part.o
+
 sort_map.o: sort_map.cpp
 	g++ -std=c++11 -Wall -pedantic -g -c sort_map.cpp
 
 strip.o: strip.cpp
 	g++ -std=c++11 -Wall -pedantic -g -c strip.cpp
+
+part.o: part.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c part.cpp
 
 clean:
 	rm -f sc sort.exe sort_map.o t_sorted.txt

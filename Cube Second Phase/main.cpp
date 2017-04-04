@@ -39,11 +39,15 @@ int main(int argc, char const *argv[]) {
     keyfile += ".key";
     keytxt += ".txt";
     newname += ".txt";
-    rename(argv[1], newname);
-    rename(keyfile, keytxt);
+    rename(input.c_str(), newname.c_str());
+    rename(keyfile.c_str(), keytxt.c_str());
     fstream cstream (newname, ios::in);
     fstream kstream (keytxt, ios::in);
-    //Key and cube is in txt format.
+    int data_size;
+    string encryption_string, cube_order;
+    cstream >> data_size;
+    getline(cstream, encryption_string);
+    getline(cstream, cube_order);
   }
   else {
     fstream cstream (argv[1], ios::in);

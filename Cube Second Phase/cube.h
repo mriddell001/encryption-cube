@@ -11,6 +11,7 @@ using namespace std;
 class Cube {
 public:
   Cube();
+  Cube(string cube_order);
   void initializeCube(fstream&);                      // streams in data
   void deconstructCube(fstream&);                     // streams out data
   int getSize(){return pips.size();}
@@ -25,7 +26,6 @@ public:
   void threeFront(int a);
   void print_bands();
 private:
-  int init;
   class Pip {                                         // Represents on square on the cube
     public:
       string data;

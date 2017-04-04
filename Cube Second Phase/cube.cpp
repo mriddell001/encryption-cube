@@ -11,6 +11,7 @@ using namespace std;
 
 /**
 * Cube - Initial creation of cube.
+* @return - Return Cube
 *
 * Notes: May be impacted by changing load order. Check when project reaches
 *        applicable phase in development. Current load order: Front, Right, Top,
@@ -37,26 +38,37 @@ using namespace std;
 *                   #   28  $   27  #
 *                   #   26  25  24  # <- Top Left Corner
 *                   #################
-*
-* Debugging: Confirmed data was loaded into bands 2D array.
 */
 Cube::Cube() {
-  init = 1;
   int nums[72] = {0,  1,  2,  8,  9,  10, 24, 25, 26, 32, 33, 34,  //Band 0
                   5,  6,  7,  13, 14, 15, 29, 30, 31, 37, 38, 39,  //Band 1
                   0,  3,  5,  40, 43, 45, 31, 28, 26, 16, 19, 21,  //Band 2
                   2,  4,  7,  42, 44, 47, 29, 27, 24, 18, 20, 23,  //Band 3
                   16, 17, 18, 10, 12, 15, 47, 46, 45, 37, 35, 32,  //Band 4
                   21, 22, 23,  8, 11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
-  int l = 0;
-  for (int i = 0; i < 48; i++) {
-    Pip *tmp = new Pip();
-    pips.push_back(tmp);
+  for (int i = 0; i < 6; i++) {
+    for (int j = 0; j < 12; j++) {
+        bands[i][j] = nums[i*12+j];
+    }
+  }
+}
+
+/**
+* Cube - Initial creation of cube.
+* @param {fstream} stream - input stream to load cube with data.
+* @return - Return Cube
+*
+*/
+Cube::Cube(string cube_order) {
+  int nums[72];
+  for (int i = 0; i < 72; i++) {
+    string tmp = "" + cube_order[i*2] + cube_order[i*2+1];
+    int pmt = stoi(tmp);
+    nums[i] = pmt;
   }
   for (int i = 0; i < 6; i++) {
-    for (int k = 0; k < 12; k++) {
-        bands[i][k] = nums[l];
-        l++;
+    for (int j = 0; j < 12; j++) {
+        bands[i][j] = nums[i*12+j];
     }
   }
 }
@@ -71,6 +83,10 @@ Cube::Cube() {
 *        applicable phase in development.
 */
 void Cube::initializeCube(fstream& stream) {
+  for (int i = 0; i < 48; i++) {
+    Pip *tmp = new Pip();
+    pips.push_back(tmp);
+  }
   char ch;
   int index = 0;
   while (stream.get(ch)) {
@@ -87,7 +103,6 @@ void Cube::initializeCube(fstream& stream) {
       index = index % 48;
     }
   }
-  init++;
 }
 
 

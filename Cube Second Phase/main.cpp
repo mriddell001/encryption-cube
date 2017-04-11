@@ -33,11 +33,11 @@ int main(int argc, char const *argv[]) {
   string input = argv[1];
   int l = input.length(), p = l-4;
   char dot = input[p];
-  if (dot != '.') {//1.cube
+  if (dot != '.') {//If the parameter is of type .cube
     string newname = input.substr(0, p-1);
     string keyfile, keytxt, keyname = newname;
-    keyfile += ".key";
-    keytxt += ".txt";
+    keyfile = newname + ".key";
+    keytxt = newname + ".txt";
     newname += ".txt";
     rename(input.c_str(), newname.c_str());
     rename(keyfile.c_str(), keytxt.c_str());
@@ -48,8 +48,9 @@ int main(int argc, char const *argv[]) {
     cstream >> data_size;
     getline(cstream, encryption_string);
     getline(cstream, cube_order);
+    Cube cube = new Cube(cube_order);
   }
-  else {
+  else {//If the parameter is of type .txt
     fstream cstream (argv[1], ios::in);
     fstream istream ("ci.txt", ios::in);
     int l = rand() % 105046 + 1;

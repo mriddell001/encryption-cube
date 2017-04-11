@@ -23,11 +23,11 @@
 #    -g           ==> keep additional information to aid in debugging
 #    -o           ==> specify the output filename
 #    -c           ==> compile only (create a .o file)
-sc: sort_combine.o
-	g++ -std=c++11 -Wall -pedantic -g -o sc sort_combine.o
+sort: sort.o
+	g++ -std=c++11 -Wall -pedantic -g -o sc sort.o
 
-sort_combine.o: sort_combine.cpp
-	g++ -std=c++11 -Wall -pedantic -g -c sort_combine.cpp
+sort.o: sort.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c sort.cpp
 
 clean:
-	rm -f sc sc.exe sort_combine.o full_list.txt
+	rm -f sc sort.exe sort.o sort_length.txt

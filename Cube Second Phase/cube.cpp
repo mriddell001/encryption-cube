@@ -3,8 +3,11 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <iterator>
 #include <iostream>
+#include <sstream>
+#include <time.h>
+#include <stdlib.h>
+
 
 using namespace std;
 
@@ -40,17 +43,15 @@ using namespace std;
 *                   #################
 */
 Cube::Cube() {
-  int nums[72] = {0,  1,  2,  8,  9,  10, 24, 25, 26, 32, 33, 34,  //Band 0
-                  5,  6,  7,  13, 14, 15, 29, 30, 31, 37, 38, 39,  //Band 1
-                  0,  3,  5,  40, 43, 45, 31, 28, 26, 16, 19, 21,  //Band 2
-                  2,  4,  7,  42, 44, 47, 29, 27, 24, 18, 20, 23,  //Band 3
-                  16, 17, 18, 10, 12, 15, 47, 46, 45, 37, 35, 32,  //Band 4
-                  21, 22, 23,  8, 11, 13, 42, 41, 40, 39, 36, 34}; //Band 5
-  for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 12; j++) {
-        bands[i][j] = nums[i*12+j];
-    }
+  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
+               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
+  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
+               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
+
+  for (int i = 0; i < 48; i++) {
+    bands[x[i]][y[i]] = i;
   }
+  propagate_connections();
 }
 
 /**
@@ -60,16 +61,55 @@ Cube::Cube() {
 *
 */
 Cube::Cube(string cube_order) {
-  int nums[72];
-  for (int i = 0; i < 72; i++) {
+  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
+               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
+  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
+               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
+  int number;
+  for (int i = 0; i < 48; i++) {
     string tmp = "" + cube_order[i*2] + cube_order[i*2+1];
-    int pmt = stoi(tmp);
-    nums[i] = pmt;
+    istringstream (tmp) >> number;
+    bands[x[i]][y[i]] = number;
   }
+  propagate_connections();
+}
+
+void Cube::propagate_connections() {
+  int a, b, c, d, v, w, x, y;
   for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 12; j++) {
-        bands[i][j] = nums[i*12+j];
+    if ((i+1)%3==0) {
+      if (i<4) {a = 4; b = 5;}
+      else {a = 5; b = 4;}
     }
+    else {a = 0; b = 1;}
+
+    if ((i+2)%3==0) {
+      if (i<3) {c = 5; d = 4;}
+      else {c = 4; d = 5;}
+    }
+    else {
+      if (i!=3) {c = 2; d = 3;}
+      else {c = 3; d = 2;}
+    }
+
+    switch (i) {
+      case 1: {x = 3; y = 5; break;}
+      case 3: {x = 6; y = 8; break;}
+      case 4: {x = 9; y = 11; break;}
+      case 5: {x = 8; y = 6; break;}
+      default: {x = 0; y = 2;break;}
+    }
+    switch (i) {
+      case 0: {v = 0; w = 2; break;}
+      case 2: {v = 9; w = 11; break;}
+      case 3: {v = 8; w = 6; break;}
+      case 4: {v = 11; w = 9; break;}
+      default: {v = 3; w = 5; break;}
+    }
+    bands[c][v] = bands[a][x];
+    bands[d][v] = bands[a][y];
+    bands[c][w] = bands[b][x];//
+    bands[d][w] = bands[b][y];//
   }
 }
 
@@ -87,8 +127,8 @@ void Cube::initializeCube(fstream& stream) {
     Pip *tmp = new Pip();
     pips.push_back(tmp);
   }
-  char ch;
-  int index = 0;
+  char ch, pa;
+  int index = 0, p;
   while (stream.get(ch)) {
     string str = "";
     str.push_back(ch);
@@ -98,7 +138,11 @@ void Cube::initializeCube(fstream& stream) {
   }
   if (index != 0) {
     while(index != 0) {
-      pips[index]->data += " ";
+      p = rand() % 95 + 32;
+      pa = '0' + p;
+      string pad;
+      pad.push_back(pa);
+      pips[index]->data += pad;
       index++;
       index = index % 48;
     }
@@ -113,62 +157,25 @@ void Cube::initializeCube(fstream& stream) {
 * Notes: Deconstruction cube should also call the destructor for the cube. This
 *        still needs to be implimented.
 */
-void Cube::deconstructCube(fstream& stream) {
+void Cube::deconstructCube(ostream& stream) {
   print(stream);
 }
-
-/**
-* transformationString - accept input string of cube manipulations.
-* @param {string} stream - input string of cube transformations.
-*/
-void Cube::transformationString(string stream) {
-  string a = "", b = "";
-
-  if ((stream.length() % 2) == 0) {
-    int slen = stream.length();
-    for (int i = 0; i < slen; i++) {
-      a += stream[i];
-      b += stream[i+1];
-      i++;
-    }
-  }
-  else {
-    string tmp = stream.substr(0, stream.length()-1);
-    int tlen = tmp.length();
-    for (int i = 0; i < tlen; i++) {
-      a += stream[i];
-      b += stream[i+1];
-      i++;
-    }
-  }
-  transformationDispatch(a, b);
-}
-
-/**
-* transformationStream - accept input file of cube manipulations.
-* @param {fstream} stream - input stream of cube transformations.
-*/
-void Cube::transformationStream(fstream& stream) {
-  string a = "", b = "", tmp = "";
-
-  while (getline(stream, tmp)) {
-    a += tmp[0];
-    b += tmp[1];
-  }
-  transformationDispatch(a, b);
-}
-
 
 /**
 * transformationDispatch - function to take string of orders ()
 * @param {String} a - string of faces to be opperated on
 * @param {String} b - string indication clockwise or counterclockwise.
 */
-void Cube::transformationDispatch(string a, string b) {
-  for (unsigned int i = 0; i < a.size(); i++) {
-    int x, y;
-    x = a[i] - '0';
-    y = b[i] - '0';
+string Cube::transformationDispatch(string a) {
+  string b = a;
+  int n = a.length();
+  for (int i = 0; i < n; i++) {
+    if (i < n/2) {swap(b[i], b[n-i-1]);}
+    int x = (int)a[i], y;
+    x -= 65;
+    y = x%2;
+    x = x/2;
+    cout << "x: " << x << "\ty: " << y << endl;
     switch (x) {
       case 0:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 1:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
@@ -176,15 +183,11 @@ void Cube::transformationDispatch(string a, string b) {
       case 3:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 4:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 5:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
-      default:
-      {//If input if formatted correctly, this should never trigger.
-        ofstream err ("error.txt", ofstream::out);
-        err << "Error occured in transformationDispatch";
-        err.close();
-        break;
-      }
     }
+    cout << "potato\n";
+    print(cout);cout<<endl;
   }
+  return b;
 }
 
 
@@ -416,132 +419,45 @@ void Cube::threeFront(int a) {
 *                   #   26  25  24  #
 *                   #################
 */
-void Cube::print(fstream& stream) {
-  vector<int> v;
-  //Print faces in order: Front, Right, Top, Back, Left, Bottom
-  /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
-  v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
-  v.push_back(bands[2][1]);
-  v.push_back(bands[3][1]);
-  v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
+void Cube::print(ostream& stream) {
+  string print_order = cube_order(), tmp, output_string = "";
+  int index;
 
-/* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
-  v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
-  v.push_back(bands[5][4]);
-  v.push_back(bands[4][4]);
-  v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
-
-/* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
-  v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
-  v.push_back(bands[2][10]);
-  v.push_back(bands[3][10]);
-  v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
-
-/* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
-  v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-  v.push_back(bands[3][7]);
-  v.push_back(bands[2][7]);
-  v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
-
-/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
-  v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
-  v.push_back(bands[4][10]);
-  v.push_back(bands[5][10]);
-  v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
-
-/* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
-  v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
-  v.push_back(bands[2][4]);
-  v.push_back(bands[3][4]);
-  v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
-
-    int index;
-    for (auto it = begin(v); it!=end(v); ++it) {
-      index = *it;
-      stream << pips[index]->data;
-    }
-    v.erase (v.begin(),v.begin()+48);
+  cout << print_order << endl;
+  for (int i = 0; i < 48; i++) {
+    index = (print_order[i*2] -'0')*10 + (print_order[i*2+1] - '0');
+    output_string += pips[index]->data;
+  }
+  stream << output_string;
 }
 
 /**
-* print - outputs the data on the cube in the face order that it was entered.
-* @param {fstream} stream - output stream to send the data from the cube.
+* screenprint - calls print with cout.
 *
 * Notes: If the face order is changed then this hard coding will not work. this
 *        only works in the case where the input order is: Front, Right, Top,
 *        Back, Left, Bottom.
-*                   #################
-*                   #   Top         #
-*                   #   16  17  18  #
-*                   #   19  $   20  #
-*                   #   21  22  23  #
-* ####################################################
-* #   Left          #   Front       #   Right        #
-* #   32  33  34    #   0   1   2   #   8   9   10   #
-* #   35  $   36    #   3   $   4   #   11  $   12   #
-* #   37  38  39    #   5   6   7   #   13  14  15   #
-* ####################################################
-*                   #   Bottom      #
-*                   #   40  41  42  #
-*                   #   43  $   44  #
-*                   #   45  46  47  #
-*                   #################
-*                   #   Back        #
-*                   #   31  30  29  #
-*                   #   28  $   27  #
-*                   #   26  25  24  #
-*                   #################
 */
-void Cube::print() {
-  vector<int> v;
-  //Print faces in order: Front, Right, Top, Back, Left, Bottom
-  /* Front - band(0): 0, 1, 2 | band(2): 1 | band(3): 1 | band(1): 0, 1, 2 */
-  v.push_back(bands[0][0]); v.push_back(bands[0][1]); v.push_back(bands[0][2]);
-  v.push_back(bands[2][1]);
-  v.push_back(bands[3][1]);
-  v.push_back(bands[1][0]); v.push_back(bands[1][1]); v.push_back(bands[1][2]);
-
-/* Right - band(0): 3, 4, 5 | band(5): 4 | band(4): 4 | band(1): 3, 4, 5 */
-  v.push_back(bands[0][3]); v.push_back(bands[0][4]); v.push_back(bands[0][5]);
-  v.push_back(bands[5][4]);
-  v.push_back(bands[4][4]);
-  v.push_back(bands[1][3]); v.push_back(bands[1][4]); v.push_back(bands[1][5]);
-
-/* Top - band(4): 0, 1, 2 | band(2): 10 | band(3): 10 | band(5): 0, 1, 2 */
-  v.push_back(bands[4][0]); v.push_back(bands[4][1]); v.push_back(bands[4][2]);
-  v.push_back(bands[2][10]);
-  v.push_back(bands[3][10]);
-  v.push_back(bands[5][0]); v.push_back(bands[5][1]); v.push_back(bands[5][2]);
-
-/* Back - band(0): 6, 7, 8 | band(2): 7 | band(3): 7 | band(1): 6, 7, 8 */
-  v.push_back(bands[0][6]); v.push_back(bands[0][7]); v.push_back(bands[0][8]);
-  v.push_back(bands[3][7]);
-  v.push_back(bands[2][7]);
-  v.push_back(bands[1][6]); v.push_back(bands[1][7]); v.push_back(bands[1][8]);
-
-/* Left - band(0): 9, 10, 11 | band(4): 10 | band(5): 10 | band(1): 9, 10, 11 */
-  v.push_back(bands[0][9]); v.push_back(bands[0][10]); v.push_back(bands[0][11]);
-  v.push_back(bands[4][10]);
-  v.push_back(bands[5][10]);
-  v.push_back(bands[1][9]); v.push_back(bands[1][10]); v.push_back(bands[1][11]);
-
-/* Bottom - band(5): 8, 7, 6 | band(2): 4 | band(3): 4 | band(4): 8, 7, 6 */
-  v.push_back(bands[5][8]); v.push_back(bands[5][7]); v.push_back(bands[5][6]);
-  v.push_back(bands[2][4]);
-  v.push_back(bands[3][4]);
-  v.push_back(bands[4][8]); v.push_back(bands[4][7]); v.push_back(bands[4][6]);
-
-    int index;
-    string str = "";
-    for (auto it = begin(v); it!=end(v); ++it) {
-      index = *it;
-      str += pips[index]->data;
-    }
-    cout << str << endl;
-    v.erase (v.begin(),v.begin()+48);
+void Cube::screenprint() {
+  print(cout);
 }
 
-void Cube::print_bands() {
+string Cube::cube_order() {
+  string d_order = "", pmt;
+  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
+               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
+  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
+               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
+  int tmp;
+  for (int i = 0; i < 48; i++) {
+    tmp = bands[x[i]][y[i]];
+    if (tmp < 10) {d_order += "0";}
+    d_order += to_string(tmp);
+  }
+  return d_order;
+}
+
+void Cube::print_bands(ostream& stream) {
   for (int i = 0; i < 6; i++) {
     for (int k = 0; k < 12; k++) {
       cout << bands[i][k] << "\t";

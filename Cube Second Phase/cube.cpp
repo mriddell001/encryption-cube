@@ -67,11 +67,13 @@ Cube::Cube(string cube_order) {
                8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
   int number;
   for (int i = 0; i < 48; i++) {
-    string tmp = "" + cube_order[i*2] + cube_order[i*2+1];
+    string tmp = cube_order.substr(i*2,2);
     istringstream (tmp) >> number;
     bands[x[i]][y[i]] = number;
   }
   propagate_connections();
+  print_bands(cout);
+  cout << endl;
 }
 
 void Cube::propagate_connections() {
@@ -123,6 +125,7 @@ void Cube::propagate_connections() {
 *        applicable phase in development.
 */
 void Cube::initializeCube(fstream& stream) {
+  //*********************************PROBLEM IS IN HERE
   for (int i = 0; i < 48; i++) {
     Pip *tmp = new Pip();
     pips.push_back(tmp);
@@ -171,11 +174,13 @@ string Cube::transformationDispatch(string a) {
   int n = a.length();
   for (int i = 0; i < n; i++) {
     if (i < n/2) {swap(b[i], b[n-i-1]);}
-    int x = (int)a[i], y;
+    string ab = a.substr(i,1);
+    int x = a[i];
+    int y = x;
+
     x -= 65;
     y = x%2;
     x = x/2;
-    cout << "x: " << x << "\ty: " << y << endl;
     switch (x) {
       case 0:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 1:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
@@ -184,8 +189,14 @@ string Cube::transformationDispatch(string a) {
       case 4:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
       case 5:{ if(y == 0){clockwise(x);} else{counterclockwise(x);} break;}
     }
-    cout << "potato\n";
-    print(cout);cout<<endl;
+  }
+  for (int i = 0; i < n; i++) {
+    if (b[i]%2==1) {
+      b[i]++;
+    }
+    else {
+      b[i]--;
+    }
   }
   return b;
 }
@@ -422,10 +433,9 @@ void Cube::threeFront(int a) {
 void Cube::print(ostream& stream) {
   string print_order = cube_order(), tmp, output_string = "";
   int index;
-
-  cout << print_order << endl;
   for (int i = 0; i < 48; i++) {
-    index = (print_order[i*2] -'0')*10 + (print_order[i*2+1] - '0');
+    tmp = print_order.substr(i*2,2);
+    index = stoi(tmp);
     output_string += pips[index]->data;
   }
   stream << output_string;

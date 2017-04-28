@@ -5,3 +5,5 @@ Goals: Upon start up, perform one of two tasks. Either allow the user to select 
 Changes: Now that this is moving out of the testing phase, testing resources will be removed and streamlined. It should no longer accept command line arguments and should randomly generate a number of transformations between 1-26 with a favoritism toward higher complexity.
 
 Needs: A formula to deduce which transformations are acceptable given a previous string of transformations is needed. An example of this would be that a clockwise turn of the TOP face followed by a counter clockwise turn of the TOP face results in a net of no change.
+
+Update (4/24/17): For display purposes, no formula will be use to generate acceptable string of transformations. Test file of combinations instead will be used. Further exploration of the topic reserved for further phases. Complexity will be increased by expanding possible combinations of enter orders.

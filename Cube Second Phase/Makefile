@@ -23,14 +23,20 @@
 #    -g           ==> keep additional information to aid in debugging
 #    -o           ==> specify the output filename
 #    -c           ==> compile only (create a .o file)
-crypt: cube.o main.o
-	g++ -std=c++11 -Wall -pedantic -g -o crypt main.o cube.o
+crypt: b64.o cube.o locality.o main.o
+	g++ -std=c++11 -Wall -pedantic -g -o crypt main.o cube.o b64.o locality.o
 
-main.o: cube.h main.cpp
+main.o: b64.h cube.h locality.h main.cpp
 	g++ -std=c++11 -Wall -pedantic -g -c main.cpp
 
 cube.o: cube.h cube.cpp
 	g++ -std=c++11 -Wall -pedantic -g -c cube.cpp
 
+b64.o: b64.h b64.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c b64.cpp
+
+locality.o: locality.h locality.cpp
+	g++ -std=c++11 -Wall -pedantic -g -c locality.cpp
+
 clean:
-	rm -f crypt crypt.exe main.o cube.o basic.cube basic.key
+	rm -f crypt crypt.exe main.o b64.o cube.o locality.o basic.cube basic.key

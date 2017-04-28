@@ -4,58 +4,26 @@ Expected form of input:
 1. Text file or Cube file
 **/
 
-#include <bitset>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <math.h>
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <vector>
 
+#include "b64.h"
 #include "cube.h"
+#include "locality.h"
 
 using namespace std;
 
-string to_base64(string data) {
-  string b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  string data64="",binary="", tmp, pmt = data;
-  int count = data.length()/2, number;
-  for (int i = 0; i < count; i++) {
-    tmp = pmt.substr(i*2, 2);
-    number = stoi(tmp);
-    if (number < 26) {binary += std::bitset<8>(number+65).to_string();}
-    else {binary += std::bitset<8>(number+71).to_string();}
-    while (binary.length()>5) {
-      tmp = binary.substr(0,6);
-      binary = binary.substr(6,binary.length()-6);
-      number = std::stoi(tmp, nullptr, 2);
-      data64 += b64[number];
-    }
-  }
-  return data64;
-}
-
-string from_base64(string data) {
-  string b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  string rdata="",binary="", tmp;
-  int count = data.length(), number;
-
-  for (int i = 0; i < count; i++) {
-    size_t index = b64.find(data[i]);
-    tmp = std::bitset<8>(index).to_string();
-    tmp = tmp.substr(2,6);
-    binary += tmp;
-    while (binary.length()>7) {
-      tmp = binary.substr(0,8);
-      binary = binary.substr(8,binary.length()-8);
-      number = std::stoi(tmp, nullptr,2);
-      if (number > 96) {number-=71; rdata += to_string(number);}
-      else {number-=65; if (number < 10) {rdata += "0";} rdata += to_string(number);}
-    }
-  }
-  return rdata;
-}
-
+/**
+* filesize - Return the size of a file.
+* @param {Const Char*} filename - Name of file.
+* @returns {pos_type}
+*/
 ifstream::pos_type filesize(const char* filename)
 {
     ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
@@ -68,15 +36,19 @@ ifstream::pos_type filesize(const char* filename)
 * @param {Char Array} argv - char arrays containing input.
 * @returns {Int}
 */
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[]) {//Rework to include multiple input orders.
   //File to be encoded.
-  string input = argv[1], newname, keyfile, keytxt,
-         keyname, crypt_cmd, cube_order;
+  B64 b64;
+  Locality loc;
+  vector<string> vo;
+  vector<string> vi;
+  string input = argv[1], newname, keyfile, keytxt, crypt_cmd, cube_order;
   int l = input.length(), p = l-4;
+  int runs = 0;
   char dot = input[p];
+  cout << "dot " << dot << "\n";
   if (dot != '.') {//If the parameter is of type .cube
     newname = input.substr(0, p-1);
-    keyname = newname;
     keyfile = newname + ".key";
     keytxt = newname + ".txt";
     newname += ".txt";
@@ -87,7 +59,7 @@ int main(int argc, char const *argv[]) {
     kstream >> crypt_cmd;
     kstream >> cube_order;
     kstream.close();
-    cube_order = from_base64(cube_order);
+    cube_order = b64.from_base64(cube_order);
     Cube cube = Cube();
     cube.initializeCube(cstream);
     cstream.close();
@@ -99,30 +71,71 @@ int main(int argc, char const *argv[]) {
     remove(keyfile.c_str());
   }
   else {//If the parameter is of type .txt
-    newname = input.substr(0, p);
-    keyname = newname;
-    keyfile = newname + ".key";
-    keytxt = newname + ".txt";
-    newname += ".cube";
-    fstream istream ("fl.txt", ios::in);
     srand (time(NULL));
-    int l = rand() % 93840 + 1;
-    while (l) {getline(istream, crypt_cmd);l--;}
+    runs = rand() % 25 + 1;
+    int max = 0;
+    newname = input.substr(0, p);
+    keyfile = keytxt = newname;
+    keyfile += ".key";
+    keytxt += ".txt";
+    newname += ".cube";
+
+    vector<int> array;
+    vector<int>::iterator it;
+    vector<string>::iterator itt;
+    for (int i = 0; i < runs; i++) {
+      cube_order = loc.randGen(&vo);
+      vo.push_back(cube_order);
+      int l = rand() % 8170656;
+      if (l > max) {max = l;}
+      array.push_back(l);
+      vi.push_back(to_string(l));
+    }
+
+    fstream istream ("sl.txt", ios::in);
+    for (int i = 0; i < max+1; i++) {
+      it = find(array.begin(),array.end(),i);
+      getline(istream, crypt_cmd);
+      if (it!=array.end()) {
+        itt = find(vi.begin(),vi.end(),to_string(i));
+        int j = distance(vi.begin(),itt);
+        vi[j] = crypt_cmd;
+      }
+    }
+    array.erase(array.begin(),array.end());
     istream.close();
+
+    int file_length = filesize(argv[1]);
+    file_length+=file_length%48;
+    string output = "", prev = "";
+
     Cube cube = Cube();
+    for (int i = 0; i < runs; i++) {
+      string o = "";
+      cube_order = vo[i];
+      crypt_cmd = vi[i];
+      if(prev!=""){cube.overwriteOrder(prev);}
+      else{cube.overwriteOrder(cube_order);}
+      cube_order = b64.to_base64(cube_order);
+      crypt_cmd = cube.transformationDispatch(crypt_cmd);
+      o = "\t" + crypt_cmd + "\t" + cube_order;
+      cube_order = cube.cube_order();
+      prev = cube_order;
+      cube_order = b64.to_base64(cube_order);
+      o = "\t" + cube_order + o;
+      output += o;
+    }
+    vi.erase(vi.begin(),vi.end());
+    vo.erase(vo.begin(),vo.end());
     fstream tstream (input, ios::in);
     cube.initializeCube(tstream);
     tstream.close();
-    crypt_cmd = cube.transformationDispatch(crypt_cmd);
-    int file_length = filesize(argv[1]);
-    file_length+=file_length%48;
+
     fstream kstream (keytxt, ios::out);
-    cube_order = cube.cube_order();
-    cube_order = to_base64(cube_order);
-    kstream << file_length << " " << crypt_cmd << " " << cube_order;
+    kstream << file_length << "\t" << runs << "\t" << output;
     kstream.close();
     rename(keytxt.c_str(), keyfile.c_str());
-    //remove(input.c_str());
+    //remove(input.c_str()); //Remove this once complete verified and ready to opperate fully.
     fstream cstream (newname, ios::out);
     cube.print(cstream);
     cstream.close();

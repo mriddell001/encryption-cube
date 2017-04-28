@@ -8,46 +8,13 @@
 #include <time.h>
 #include <stdlib.h>
 
-
 using namespace std;
-
 
 /**
 * Cube - Initial creation of cube.
 * @return - Return Cube
-*
-* Notes: May be impacted by changing load order. Check when project reaches
-*        applicable phase in development. Current load order: Front, Right, Top,
-*        Back, Left, Bottom
-*
-*                   #################
-*                   #   Top         #
-*                   #   16  17  18  #
-*                   #   19  $   20  #
-*                   #   21  22  23  #
-* ####################################################
-* #   Left          #   Front       #   Right        #
-* #   32  33  34    #   0   1   2   #   8   9   10   #
-* #   35  $   36    #   3   $   4   #   11  $   12   #
-* #   37  38  39    #   5   6   7   #   13  14  15   #
-* ####################################################
-*                   #   Bottom      #
-*                   #   40  41  42  #
-*                   #   43  $   44  #
-*                   #   45  46  47  #
-*                   #################
-*                   #   Back        #
-*                   #   31  30  29  #
-*                   #   28  $   27  #
-*                   #   26  25  24  # <- Top Left Corner
-*                   #################
 */
 Cube::Cube() {
-  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
-               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
-  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
-               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
-
   for (int i = 0; i < 48; i++) {
     bands[x[i]][y[i]] = i;
   }
@@ -61,21 +28,22 @@ Cube::Cube() {
 *
 */
 Cube::Cube(string cube_order) {
-  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
-               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
-  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
-               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
-  int number;
   for (int i = 0; i < 48; i++) {
-    string tmp = cube_order.substr(i*2,2);
+    string tmp = cube_order.substr(i,1);
+    int number = c48.find(tmp);
     istringstream (tmp) >> number;
     bands[x[i]][y[i]] = number;
   }
   propagate_connections();
-  print_bands(cout);
-  cout << endl;
 }
 
+Cube::~Cube() {
+  pips.erase(pips.begin(), pips.end());
+}
+
+/**
+* propagate_connections - Take filled bands and connect related.
+*/
 void Cube::propagate_connections() {
   int a, b, c, d, v, w, x, y;
   for (int i = 0; i < 6; i++) {
@@ -110,11 +78,27 @@ void Cube::propagate_connections() {
     }
     bands[c][v] = bands[a][x];
     bands[d][v] = bands[a][y];
-    bands[c][w] = bands[b][x];//
-    bands[d][w] = bands[b][y];//
+    bands[c][w] = bands[b][x];
+    bands[d][w] = bands[b][y];
   }
 }
 
+/**
+* overwriteOrder - Take old order and allign to new input order.
+* @param {String} a - Previous order of cube.
+*/
+void Cube::overwriteOrder(string a) {
+  string co = cube_order();
+  for (int i = 0; i < 48; i++) {
+    string tmp = co.substr(i,1);
+    int n1 = c48.find(tmp);
+    string pmt = a.substr(i,1);
+    int n2 = c48.find(pmt);
+    istringstream (pmt) >> n2;
+    bands[x[i]][y[i]] = n2;
+  }
+  propagate_connections();
+}
 
 /**
 * initializeCube - function to take input stream and load cube with strings of
@@ -358,8 +342,8 @@ void Cube::clockwise(int a) {
       break;
     }
   }
-  x.erase (x.begin(),x.begin()+3);
-  y.erase (y.begin(),y.begin()+3);
+  x.erase(x.begin(),x.end());
+  y.erase(y.begin(),y.end());
 }
 
 
@@ -384,7 +368,7 @@ void Cube::threeBack(int a) {
   for (int i = 0; i < 3; i++) {v.push_back(bands[a][i]);}
   for (int i = 3; i < 12; i++) {bands[a][i-3] = bands[a][i];}
   for (int i = 9; i < 12; i++) {bands[a][i] = v[i-9];}
-  v.erase (v.begin(),v.begin()+3);
+  v.erase(v.begin(),v.end());
 }
 
 
@@ -397,7 +381,7 @@ void Cube::threeFront(int a) {
   for (int i = 9; i < 12; i++) {v.push_back(bands[a][i]);}
   for (int i = 8; i > -1; i--) {bands[a][i+3] = bands[a][i];}
   for (int i = 0; i < 3; i++) {bands[a][i] = v[i];}
-  v.erase (v.begin(),v.begin()+3);
+  v.erase(v.begin(),v.end());
 }
 
 
@@ -454,15 +438,10 @@ void Cube::screenprint() {
 
 string Cube::cube_order() {
   string d_order = "", pmt;
-  int x[48] = {0,0,0,2,3,1,1,1,0,0,0,5,4,1,1,1,4,4,4,2,3,5,5,5,0,0,0,3,2,1,1,1,
-               0,0,0,4,5,1,1,1,5,5,5,2,3,4,4,4};
-  int y[48] = {0,1,2,1,1,0,1,2,3,4,5,4,4,3,4,5,0,1,2,10,10,0,1,2,6,7,8,7,7,6,7,
-               8,9,10,11,10,10,9,10,11,8,7,6,4,4,8,7,6};
   int tmp;
   for (int i = 0; i < 48; i++) {
     tmp = bands[x[i]][y[i]];
-    if (tmp < 10) {d_order += "0";}
-    d_order += to_string(tmp);
+    d_order += c48[tmp];
   }
   return d_order;
 }

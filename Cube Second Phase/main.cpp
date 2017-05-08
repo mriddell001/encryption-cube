@@ -46,7 +46,6 @@ int main(int argc, char const *argv[]) {//Rework to include multiple input order
   int l = input.length(), p = l-4;
   int runs = 0;
   char dot = input[p];
-  cout << "dot " << dot << "\n";
   if (dot != '.') {//If the parameter is of type .cube
     newname = input.substr(0, p-1);
     keyfile = newname + ".key";
@@ -56,8 +55,14 @@ int main(int argc, char const *argv[]) {//Rework to include multiple input order
     fstream kstream (keyfile, ios::in);
     int data_size;
     kstream >> data_size;
-    kstream >> crypt_cmd;
-    kstream >> cube_order;
+    kstream >> runs;
+    for (int i = 0; i < runs; i++) {
+      kstream >> crypt_cmd;
+      kstream >> cube_order;
+      vo.push_back(cube_order);
+      vi.push_back(crypt_cmd);//Finish decrypting instream of combinations.
+    }
+
     kstream.close();
     cube_order = b64.from_base64(cube_order);
     Cube cube = Cube();

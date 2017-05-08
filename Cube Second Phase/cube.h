@@ -18,6 +18,7 @@ public:
   int getSize(){return pips.size();}
   string transformationDispatch(string a);
   void overwriteOrder(string a);
+  void primeOrder();
   void print(ostream& stream);                        // prints out data
   void print(ostream& stream, string cube_order);
   void screenprint();

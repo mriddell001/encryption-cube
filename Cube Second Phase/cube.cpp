@@ -90,12 +90,24 @@ void Cube::propagate_connections() {
 void Cube::overwriteOrder(string a) {
   string co = cube_order();
   for (int i = 0; i < 48; i++) {
-    string tmp = co.substr(i,1);
-    int n1 = c48.find(tmp);
-    string pmt = a.substr(i,1);
-    int n2 = c48.find(pmt);
-    istringstream (pmt) >> n2;
-    bands[x[i]][y[i]] = n2;
+    string os, ns;
+    int oi, ni;
+    ns = a.substr(i,1);     //The value at index i in string a.
+    ni = c48.find(ns);      //Is the number found in c48.
+
+    os = co.substr(ni,1);   //The value at index ni in string co.
+    oi = c48.find(os);      //Is the number found in c48.
+
+    bands[x[i]][y[i]] = oi; //Move the value in the old string at the index from the new to the new index.
+  }
+  propagate_connections();
+}
+
+void Cube::primeOrder() {
+  string co = cube_order();
+  for (int i = 0; i < 48; i++) {
+    int index = 
+    bands[x[i]][y[i]] = i;
   }
   propagate_connections();
 }
@@ -418,8 +430,8 @@ void Cube::print(ostream& stream) {
   string print_order = cube_order(), tmp, output_string = "";
   int index;
   for (int i = 0; i < 48; i++) {
-    tmp = print_order.substr(i*2,2);
-    index = stoi(tmp);
+    tmp = print_order[i];
+    index = c48.find(tmp);
     output_string += pips[index]->data;
   }
   stream << output_string;

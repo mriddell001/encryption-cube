@@ -103,15 +103,6 @@ void Cube::overwriteOrder(string a) {
   propagate_connections();
 }
 
-void Cube::primeOrder() {
-  string co = cube_order();
-  for (int i = 0; i < 48; i++) {
-    int index = 
-    bands[x[i]][y[i]] = i;
-  }
-  propagate_connections();
-}
-
 /**
 * initializeCube - function to take input stream and load cube with strings of
 *                  data in the order: Front, Right, Top, Back, Left, Bottom
@@ -428,11 +419,15 @@ void Cube::threeFront(int a) {
 */
 void Cube::print(ostream& stream) {
   string print_order = cube_order(), tmp, output_string = "";
-  int index;
-  for (int i = 0; i < 48; i++) {
-    tmp = print_order[i];
-    index = c48.find(tmp);
-    output_string += pips[index]->data;
+  string slen = pips[0]->data;
+  int ilen = slen.size();
+
+  for (int i = 0; i < ilen; i++) {
+    for (int j = 0; j < 48; j++) {
+      tmp = print_order[j];
+      int index = c48.find(tmp);
+      output_string += pips[index]->data[i];
+    }
   }
   stream << output_string;
 }

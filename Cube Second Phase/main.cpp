@@ -57,21 +57,15 @@ int main(int argc, char const *argv[]) {//Rework to include multiple input order
     kstream >> data_size;
     kstream >> runs;
     kstream >> cube_order;
-    cube_order = b64.from_base64(cube_order);
-    Cube cube = Cube(cube_order);
-
-    for (int i = 0; i < runs; i++) {
-      kstream >> crypt_cmd;
-      kstream >> cube_order;
-      cube_order = b64.from_base64(cube_order);
-      cube.transformationDispatch(crypt_cmd);
-      //if (i < runs-1) {cube.overwriteOrder(cube_order);}
-    }
-    cube.primeOrder();
+    kstream >> crypt_cmd;
     kstream.close();
+
+    fstream tstream (newname, ios::out);
+    cube_order = b64.from_base64(cube_order);
+    Cube cube = Cube();
     cube.initializeCube(cstream);
     cstream.close();
-    fstream tstream (newname, ios::out);
+    cube.transformationDispatch(crypt_cmd);
     cube.print(tstream);
     tstream.close();
     remove(input.c_str());
@@ -84,9 +78,9 @@ int main(int argc, char const *argv[]) {//Rework to include multiple input order
     int max = 0;
     newname = input.substr(0, p);
     keyfile = keytxt = newname;
-    keyfile += "2.key";
+    keyfile += ".key";
     keytxt += ".txt";
-    newname += "2.cube";
+    newname += ".cube";
 
     vector<int> array;
     vector<int>::iterator it;
@@ -119,12 +113,12 @@ int main(int argc, char const *argv[]) {//Rework to include multiple input order
     Cube cube = Cube();
     for (int i = 0; i < runs; i++) {
       string o = "";
-      cube_order = vo[i];
+      //cube_order = vo[i];
       crypt_cmd = vi[i];
-      cube.overwriteOrder(cube_order);
-      cube_order = b64.to_base64(cube_order);
+      //cube.overwriteOrder(cube_order);
+      //cube_order = b64.to_base64(cube_order);
       crypt_cmd = cube.transformationDispatch(crypt_cmd);
-      output = "\t" + crypt_cmd + "\t" + cube_order + output;
+      output = "\t" + crypt_cmd;
     }
     cube_order = b64.to_base64(cube.cube_order());
     output = "\t" + cube_order + output;
